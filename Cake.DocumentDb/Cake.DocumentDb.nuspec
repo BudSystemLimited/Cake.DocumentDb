@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>Cake.DocumentDb</id>
     <version>$version$</version>
     <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>https://github.com/BudSystemsLtd/Cake.DocumentDb/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/BudSystemsLtd/Cake.DocumentDb</projectUrl>
+    <authors>jonathan.stowell</authors>
+    <owners>Bud Systems Limited</owners>
+    <licenseUrl>https://github.com/BudSystemLimited/Cake.DocumentDb/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/BudSystemLimited/Cake.DocumentDb</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Cake plugin for creating documents, collections and seeding documents</description>
     <copyright>Copyright 2017</copyright>
     <tags>Document Db Cake</tags>
     <dependencies>
