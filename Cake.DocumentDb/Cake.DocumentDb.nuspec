@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/BudSystemsLtd/Cake.DocumentDb/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/BudSystemsLtd/Cake.DocumentDb</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>Copyright 2017</copyright>
+    <tags>Document Db Cake</tags>
+    <dependencies>
+      <dependency id="Microsoft.Azure.DocumentDB" version="1.11.4" />
+      <dependency id="Microsoft.Azure.DocumentDB.TransientFaultHandling" version="1.5.0" />
+    </dependencies>
+  </metadata>
+</package>
