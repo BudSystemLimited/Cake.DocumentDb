@@ -40,7 +40,7 @@ namespace Cake.DocumentDb.Requests
 
             response = new DocumentCollection
             {
-                Id = "mycollection"
+                Id = collection
             };
 
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
