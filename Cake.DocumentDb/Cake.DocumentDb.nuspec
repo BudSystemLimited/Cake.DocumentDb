@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Cake.DocumentDb</id>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <title>$title$</title>
     <authors>jonathan.stowell</authors>
     <owners>Bud Systems Limited</owners>
@@ -16,7 +16,7 @@
       <dependency id="EnterpriseLibrary.TransientFaultHandling" version="6.0.1304.0" />
       <dependency id="Microsoft.Azure.DocumentDB" version="1.11.4" />
       <dependency id="Microsoft.Azure.DocumentDB.TransientFaultHandling" version="1.5.0" />
-      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="Newtonsoft.Json" version="6.0.8" />
     </dependencies>
   </metadata>
 </package>
