@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Cake.Core;
 using Cake.Core.Annotations;
+using Cake.DocumentDb.Attributes;
 using Cake.DocumentDb.Interfaces;
 using Cake.DocumentDb.Requests;
 using LogLevel = Cake.Core.Diagnostics.LogLevel;
@@ -14,23 +15,26 @@ namespace Cake.DocumentDb
     public static class DocumentDatabaseAlias
     {
         [CakeMethodAlias]
-        public static void RunDocumentSeed(this ICakeContext context, string assembly, DocumentConnectionSettings settings)
+        public static void RunDocumentSeed(this ICakeContext context, string assembly, DocumentConnectionSettings settings, string profile)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            RunDatabaseCreations(assembly, settings, context);
-            RunDatabaseCollectionCreations(assembly, settings, context);
-            RunSeeds(assembly, settings, context);
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Using Profile: " + profile);
+
+            RunDatabaseCreations(assembly, settings, profile, context);
+            RunDatabaseCollectionCreations(assembly, settings, profile, context);
+            RunSeeds(assembly, settings, profile, context);
         }
 
-        private static void RunDatabaseCreations(string assembly, DocumentConnectionSettings settings, ICakeContext context)
+        private static void RunDatabaseCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Creations");
 
-            var databases = from t in Assembly.LoadFile(assembly).GetTypes()
-                        where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabase)) && t.GetConstructor(Type.EmptyTypes) != null
-                        select Activator.CreateInstance(t) as ICreateDocumentDatabase;
+            var databases = (from t in Assembly.LoadFile(assembly).GetTypes()
+                        where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabase)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
+                             select Activator.CreateInstance(t) as ICreateDocumentDatabase)
+                        .ToList();
 
             var operation = new DatabaseOperations(settings, context);
 
@@ -43,13 +47,14 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Database Creations");
         }
 
-        private static void RunDatabaseCollectionCreations(string assembly, DocumentConnectionSettings settings, ICakeContext context)
+        private static void RunDatabaseCollectionCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Collection Creations");
 
-            var collections = from t in Assembly.LoadFile(assembly).GetTypes()
-                            where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabaseCollection)) && t.GetConstructor(Type.EmptyTypes) != null
-                            select Activator.CreateInstance(t) as ICreateDocumentDatabaseCollection;
+            var collections = (from t in Assembly.LoadFile(assembly).GetTypes()
+                            where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabaseCollection)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
+                               select Activator.CreateInstance(t) as ICreateDocumentDatabaseCollection)
+                            .ToList();
 
             var operation = new CollectionOperations(settings, context);
 
@@ -67,13 +72,14 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Database Collection Creations");
         }
 
-        private static void RunSeeds(string assembly, DocumentConnectionSettings settings, ICakeContext context)
+        private static void RunSeeds(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Seeds");
 
-            var seeds = from t in Assembly.LoadFile(assembly).GetTypes()
-                        where t.GetInterfaces().Contains(typeof(ISeedDocument)) && t.GetConstructor(Type.EmptyTypes) != null
-                        select Activator.CreateInstance(t) as ISeedDocument;
+            var seeds = (from t in Assembly.LoadFile(assembly).GetTypes()
+                        where t.GetInterfaces().Contains(typeof(ISeedDocument)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
+                         select Activator.CreateInstance(t) as ISeedDocument)
+                        .ToList();
 
             var operation = new DocumentOperations(settings, context);
 
