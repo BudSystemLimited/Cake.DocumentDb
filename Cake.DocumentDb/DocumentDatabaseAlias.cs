@@ -79,14 +79,17 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
             var migrations = (from t in Assembly.LoadFile(assembly).GetTypes()
-                         where t.GetInterfaces().Contains(typeof(IDocumentMigration)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
-                         select Activator.CreateInstance(t) as IDocumentMigration)
+                         where t.GetInterfaces().Contains(typeof(ISqlDocumentMigration)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
+                         select Activator.CreateInstance(t) as ISqlDocumentMigration)
                         .ToList();
 
             var operation = new DocumentOperations(settings, context);
 
             foreach (var migration in migrations)
             {
+                migration.Log = context.Log;
+                migration.ConnectionDetails = settings.SqlConnectionDetails;
+
                 context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.Collection + " On Database: " + migration.Database);
 
                 var versionInfo = operation.GetVersionInfo(
@@ -98,10 +101,15 @@ namespace Cake.DocumentDb
                 if (migrationAttribute == null)
                     throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
 
-                if (versionInfo.ProcessedMigrations.Any(pm => 
+                if (versionInfo.ProcessedMigrations.Any(pm =>
                     pm.Name == migration.GetType().Name &&
                     pm.Timestamp == migrationAttribute.Timestamp))
-                    continue;;
+                {
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.Collection + " On Database: " + migration.Database + " Has Already Been Executed");
+                    continue;
+                }
+
+                migration.ExecuteSql();
 
                 var documents = operation.GetDocuments(
                     migration.Database,

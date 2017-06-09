@@ -39,6 +39,10 @@
       <HintPath>..\packages\Cake.Core.0.16.1\lib\net45\Cake.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Azure.Documents.Client, Version=1.11.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.DocumentDB.1.11.4\lib\net45\Microsoft.Azure.Documents.Client.dll</HintPath>
       <Private>True</Private>
@@ -73,7 +77,7 @@
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabase.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabaseCollection.cs" />
-    <Compile Include="Interfaces\IDocumentMigration.cs" />
+    <Compile Include="Interfaces\ISqlDocumentMigration.cs" />
     <Compile Include="Interfaces\ISeedDocument.cs" />
     <Compile Include="Migrations\MigrationInfo.cs" />
     <Compile Include="Migrations\VersionInfo.cs" />
@@ -81,6 +85,7 @@
     <Compile Include="Requests\CollectionOperations.cs" />
     <Compile Include="Requests\DatabaseOperations.cs" />
     <Compile Include="Requests\DocumentOperations.cs" />
+    <Compile Include="SqlDocumentMigration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
