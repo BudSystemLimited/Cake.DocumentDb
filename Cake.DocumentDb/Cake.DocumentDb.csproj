@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\MigrationAttribute.cs" />
     <Compile Include="Attributes\ProfileAttribute.cs" />
     <Compile Include="DocumentConnectionSettings.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
@@ -72,7 +73,10 @@
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabase.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabaseCollection.cs" />
+    <Compile Include="Interfaces\IDocumentMigration.cs" />
     <Compile Include="Interfaces\ISeedDocument.cs" />
+    <Compile Include="Migrations\MigrationInfo.cs" />
+    <Compile Include="Migrations\VersionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\CollectionOperations.cs" />
     <Compile Include="Requests\DatabaseOperations.cs" />
