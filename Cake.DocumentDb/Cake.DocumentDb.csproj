@@ -68,6 +68,7 @@
     <Compile Include="Attributes\ProfileAttribute.cs" />
     <Compile Include="DocumentConnectionSettings.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
+    <Compile Include="EmbeddedDocumentSeed.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabase.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabaseCollection.cs" />
