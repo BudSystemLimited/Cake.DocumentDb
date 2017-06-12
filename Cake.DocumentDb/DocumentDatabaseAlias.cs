@@ -25,35 +25,10 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Using Profile: " + settings.Profile);
 
             DatabaseCreations.Run(context, assembly, settings);
-            RunDatabaseCollectionCreations(assembly, settings.Connection, settings.Profile, context);
+            CollectionCreations.Run(context, assembly, settings);
             RunSeeds(assembly, settings.Connection, settings.Profile, context);
             RunMigrations(assembly, settings.Connection, settings.Profile, context);
             RunSqlMigrations(assembly, settings.Connection, settings.Profile, context);
-        }
-
-        private static void RunDatabaseCollectionCreations(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
-        {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Collection Creations");
-
-            var collections = (from t in Assembly.LoadFile(assembly).GetTypes()
-                            where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabaseCollection)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
-                               select Activator.CreateInstance(t) as ICreateDocumentDatabaseCollection)
-                            .ToList();
-
-            var operation = new CollectionOperations(settings, context);
-
-            foreach (var collection in collections)
-            {
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Creating Database Collection: " + collection.CollectionName + " On Database: " + collection.DatabaseName);
-
-                operation.GetOrCreateDocumentCollectionIfNotExists(
-                    collection.DatabaseName,
-                    collection.CollectionName,
-                    collection.PartitionKey,
-                    collection.Throughput);
-            }
-
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Database Collection Creations");
         }
 
         private static void RunMigrations(string assembly, ConnectionSettings settings, string profile, ICakeContext context)

@@ -82,6 +82,7 @@
     <Compile Include="Interfaces\ISeedDocument.cs" />
     <Compile Include="Migrations\MigrationInfo.cs" />
     <Compile Include="Migrations\VersionInfo.cs" />
+    <Compile Include="Operations\CollectionCreations.cs" />
     <Compile Include="Operations\DatabaseCreations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\InstanceProvider.cs" />

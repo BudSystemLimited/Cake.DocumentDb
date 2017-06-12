@@ -8,7 +8,6 @@ namespace Cake.DocumentDb.Operations
 {
     public class DatabaseCreations
     {
-
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Creations");
