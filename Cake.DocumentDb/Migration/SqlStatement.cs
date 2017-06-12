@@ -1,4 +1,4 @@
-namespace Cake.DocumentDb
+namespace Cake.DocumentDb.Migration
 {
     public class SqlStatement
     {

@@ -1,21 +1,24 @@
-﻿using Cake.Core.Diagnostics;
-using Cake.DocumentDb.Attributes;
-using Cake.DocumentDb.Migration;
+﻿using Cake.DocumentDb.Attributes;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("local")]
     [Migration(201706121107)]
-    public class AddNewPropertyToDocumentMigrationWithLocalProfile : IDocumentMigration
+    public class AddNewPropertyToDocumentMigrationWithLocalProfile : DocumentDb.Migration.Migration
     {
-        public ICakeLog Log { get; set; }
-        public string Description => "Add new property to document local";
-        public string DatabaseName => "cakeddbmigrationtest";
-        public string CollectionName => "MyCollection";
-        public string PartitionKey => "/mypartitionKey";
-        public void Transform(dynamic item)
+        public AddNewPropertyToDocumentMigrationWithLocalProfile()
         {
-            item.myNewLocalStringProperty = "my new local value";
+            Migrate(m =>
+            {
+                m.Description("Add new property to document local");
+                m.DatabaseName("cakeddbmigrationtest");
+                m.CollectionName("MyCollection");
+                m.PartitionKey("/mypartitionKey");
+                m.Map((log, item) =>
+                {
+                    item.myNewLocalStringProperty = "my new local value";
+                });
+            });
         }
     }
 }

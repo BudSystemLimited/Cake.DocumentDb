@@ -13,7 +13,8 @@ namespace Cake.DocumentDb.Providers
         {
             return (from t in Assembly.LoadFile(assembly).GetTypes()
                 where 
-                    t.GetInterfaces().Contains(typeof(TEntity)) && 
+                    (t.GetInterfaces().Contains(typeof(TEntity)) ||
+                    t.IsSubclassOf(typeof(TEntity))) && 
                     t.GetConstructor(Type.EmptyTypes) != null && 
                     (t.CustomAttributes.All(a => 
                         a.AttributeType != typeof(ProfileAttribute)) || 

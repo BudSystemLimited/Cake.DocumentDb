@@ -1,24 +1,27 @@
 ﻿using System;
-using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
-using Cake.DocumentDb.Migration;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Migration(201706121107)]
-    public class AddNewPropertyToDocumentMigration : IDocumentMigration
+    public class AddNewPropertyToDocumentMigration : DocumentDb.Migration.Migration
     {
-        public ICakeLog Log { get; set; }
-        public string Description => "Add new property to document";
-        public string DatabaseName => "cakeddbmigrationtest";
-        public string CollectionName => "MyCollection";
-        public string PartitionKey => "/mypartitionKey";
-        public void Transform(dynamic item)
+        public AddNewPropertyToDocumentMigration()
         {
-            item.myNewStringProperty = "my new value";
-            item.myNewIntProperty = 1;
-            item.myNewBoolProperty = true;
-            item.myNewGuidProperty = Guid.NewGuid();
+            Migrate(m =>
+            {
+                m.Description("Add new property to document");
+                m.DatabaseName("cakeddbmigrationtest");
+                m.CollectionName("MyCollection");
+                m.PartitionKey("/mypartitionKey");
+                m.Map((log, item) =>
+                {
+                    item.myNewStringProperty = "my new value";
+                    item.myNewIntProperty = 1;
+                    item.myNewBoolProperty = true;
+                    item.myNewGuidProperty = Guid.NewGuid();
+                });
+            });
         }
     }
 }

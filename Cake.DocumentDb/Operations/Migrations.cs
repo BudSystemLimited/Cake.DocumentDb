@@ -22,19 +22,19 @@ namespace Cake.DocumentDb.Operations
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
-            var migrations = InstanceProvider.GetInstances<IDocumentMigration>(assembly, settings.Profile);
+            var migrations = InstanceProvider.GetInstances<Migration.Migration>(assembly, settings.Profile);
 
             var operation = new DocumentOperations(settings.Connection, context);
 
             foreach (var migration in migrations)
             {
-                migration.Log = context.Log;
+                var task = migration.Task;
 
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName);
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
 
                 var versionInfo = operation.GetVersionInfo(
-                    migration.DatabaseName,
-                    migration.CollectionName);
+                    task.DatabaseName,
+                    task.CollectionName);
 
                 var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
 
@@ -45,34 +45,34 @@ namespace Cake.DocumentDb.Operations
                     pm.Name == migration.GetType().Name &&
                     pm.Timestamp == migrationAttribute.Timestamp))
                 {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName + " Has Already Been Executed");
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
                     continue;
                 }
 
                 var documents = operation.GetDocuments(
-                    migration.DatabaseName,
-                    migration.CollectionName);
+                    task.DatabaseName,
+                    task.CollectionName);
 
                 foreach (var document in documents)
                 {
-                    migration.Transform(document);
+                    task.Map(context.Log, document);
 
                     operation.UpsertDocument(
-                        migration.DatabaseName,
-                        migration.CollectionName,
+                        task.DatabaseName,
+                        task.CollectionName,
                         document);
                 }
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
                     Name = migration.GetType().Name,
-                    Description = migration.Description,
+                    Description = task.Description,
                     Timestamp = migrationAttribute.Timestamp,
                     AppliedOn = DateTime.UtcNow
                 });
 
                 operation.UpsertVersionInfo(
-                    migration.DatabaseName,
+                    task.DatabaseName,
                     versionInfo);
             }
 

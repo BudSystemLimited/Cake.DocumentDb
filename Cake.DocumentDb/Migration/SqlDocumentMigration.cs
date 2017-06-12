@@ -1,12 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Cake.Core.Diagnostics;
-using Cake.DocumentDb.Migration;
 using Dapper;
 
-namespace Cake.DocumentDb
+namespace Cake.DocumentDb.Migration
 {
     public abstract class SqlDocumentMigration : ISqlDocumentMigration
     {
