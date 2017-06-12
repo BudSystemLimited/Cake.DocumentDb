@@ -26,7 +26,7 @@ namespace Cake.DocumentDb
 
             DatabaseCreations.Run(context, assembly, settings);
             CollectionCreations.Run(context, assembly, settings);
-            RunSeeds(assembly, settings.Connection, settings.Profile, context);
+            Seeds.Run(context, assembly, settings);
             RunMigrations(assembly, settings.Connection, settings.Profile, context);
             RunSqlMigrations(assembly, settings.Connection, settings.Profile, context);
         }
@@ -157,30 +157,6 @@ namespace Cake.DocumentDb
                 operation.UpsertVersionInfo(
                     migration.DatabaseName,
                     versionInfo);
-            }
-
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
-        }
-
-        private static void RunSeeds(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
-        {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Seeds");
-
-            var seeds = (from t in Assembly.LoadFile(assembly).GetTypes()
-                        where t.GetInterfaces().Contains(typeof(ISeedDocument)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
-                         select Activator.CreateInstance(t) as ISeedDocument)
-                        .ToList();
-
-            var operation = new DocumentOperations(settings, context);
-
-            foreach (var seed in seeds)
-            {
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Creating Seed: " + seed.FriendlyName + " On Collection: " + seed.Collection + " On Database: " + seed.Database);
-
-                operation.UpsertDocument(
-                    seed.Database,
-                    seed.Collection,
-                    seed.Document());
             }
 
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
