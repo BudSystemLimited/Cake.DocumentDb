@@ -25,8 +25,9 @@ namespace Cake.DocumentDb
 
             RunDatabaseCreations(assembly, settings, profile, context);
             RunDatabaseCollectionCreations(assembly, settings, profile, context);
-            RunMigrations(assembly, settings, profile, context);
             RunSeeds(assembly, settings, profile, context);
+            RunMigrations(assembly, settings, profile, context);
+            RunSqlMigrations(assembly, settings, profile, context);
         }
 
         private static void RunDatabaseCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
@@ -75,6 +76,70 @@ namespace Cake.DocumentDb
         }
 
         private static void RunMigrations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
+        {
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
+
+            var migrations = (from t in Assembly.LoadFile(assembly).GetTypes()
+                              where t.GetInterfaces().Contains(typeof(IDocumentMigration)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
+                              select Activator.CreateInstance(t) as IDocumentMigration)
+                        .ToList();
+
+            var operation = new DocumentOperations(settings, context);
+
+            foreach (var migration in migrations)
+            {
+                migration.Log = context.Log;
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName);
+
+                var versionInfo = operation.GetVersionInfo(
+                    migration.DatabaseName,
+                    migration.CollectionName);
+
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                if (versionInfo.ProcessedMigrations.Any(pm =>
+                    pm.Name == migration.GetType().Name &&
+                    pm.Timestamp == migrationAttribute.Timestamp))
+                {
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName + " Has Already Been Executed");
+                    continue;
+                }
+
+                var documents = operation.GetDocuments(
+                    migration.DatabaseName,
+                    migration.CollectionName);
+
+                foreach (var document in documents)
+                {
+                    migration.Transform(document);
+
+                    operation.UpsertDocument(
+                        migration.DatabaseName,
+                        migration.CollectionName,
+                        document);
+                }
+
+                versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                {
+                    Name = migration.GetType().Name,
+                    Description = migration.Description,
+                    Timestamp = migrationAttribute.Timestamp,
+                    AppliedOn = DateTime.UtcNow
+                });
+
+                operation.UpsertVersionInfo(
+                    migration.DatabaseName,
+                    versionInfo);
+            }
+
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
+        }
+
+        private static void RunSqlMigrations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 

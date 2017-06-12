@@ -77,6 +77,7 @@
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabase.cs" />
     <Compile Include="Interfaces\ICreateDocumentDatabaseCollection.cs" />
+    <Compile Include="Interfaces\IDocumentMigration.cs" />
     <Compile Include="Interfaces\ISqlDocumentMigration.cs" />
     <Compile Include="Interfaces\ISeedDocument.cs" />
     <Compile Include="Migrations\MigrationInfo.cs" />
