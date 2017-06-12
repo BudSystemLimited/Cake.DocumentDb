@@ -29,54 +29,60 @@ namespace Cake.DocumentDb.Operations
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            foreach (var migration in migrations)
+            var groupedMigrations = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+
+            foreach (var groupedMigration in groupedMigrations)
             {
-                var task = migration.Task;
-
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
-
+                var key = groupedMigration.Key.Split('.');
                 var versionInfo = operation.GetVersionInfo(
-                    task.DatabaseName,
-                    task.CollectionName);
+                        key[0],
+                        key[1]);
 
-                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                if (migrationAttribute == null)
-                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
-
-                if (versionInfo.ProcessedMigrations.Any(pm =>
-                    pm.Name == migration.GetType().Name &&
-                    pm.Timestamp == migrationAttribute.Timestamp))
+                foreach (var migration in groupedMigration)
                 {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
-                    continue;
-                }
+                    var task = migration.Task;
 
-                var documents = operation.GetDocuments(
-                    task.DatabaseName,
-                    task.CollectionName);
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
 
-                foreach (var document in documents)
-                {
-                    task.Map(context.Log, document);
+                    var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
 
-                    operation.UpsertDocument(
+                    if (migrationAttribute == null)
+                        throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                    if (versionInfo.ProcessedMigrations.Any(pm =>
+                        pm.Name == migration.GetType().Name &&
+                        pm.Timestamp == migrationAttribute.Timestamp))
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                        continue;
+                    }
+
+                    var documents = operation.GetDocuments(
                         task.DatabaseName,
-                        task.CollectionName,
-                        document);
-                }
+                        task.CollectionName);
 
-                versionInfo.ProcessedMigrations.Add(new MigrationInfo
-                {
-                    Name = migration.GetType().Name,
-                    Description = task.Description,
-                    Timestamp = migrationAttribute.Timestamp,
-                    AppliedOn = DateTime.UtcNow
-                });
+                    foreach (var document in documents)
+                    {
+                        task.Map(context.Log, document);
+
+                        operation.UpsertDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+
+                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                    {
+                        Name = migration.GetType().Name,
+                        Description = task.Description,
+                        Timestamp = migrationAttribute.Timestamp,
+                        AppliedOn = DateTime.UtcNow
+                    });
+                }
 
                 operation.UpsertVersionInfo(
-                    task.DatabaseName,
-                    versionInfo);
+                        key[0],
+                        versionInfo);
             }
 
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
@@ -90,66 +96,80 @@ namespace Cake.DocumentDb.Operations
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            foreach (var migration in migrations)
+            var groupedMigrations = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+
+            foreach (var groupedMigration in groupedMigrations)
             {
-                var task = migration.Task;
-
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
-
+                var key = groupedMigration.Key.Split('.');
                 var versionInfo = operation.GetVersionInfo(
-                    task.DatabaseName,
-                    task.CollectionName);
+                    key[0],
+                    key[1]);
 
-                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                if (migrationAttribute == null)
-                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
-
-                if (versionInfo.ProcessedMigrations.Any(pm =>
-                    pm.Name == migration.GetType().Name &&
-                    pm.Timestamp == migrationAttribute.Timestamp))
+                foreach (var migration in migrations)
                 {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
-                    continue;
-                }
+                    var task = migration.Task;
 
-                var data = new Dictionary<string, IList<dynamic>>();
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                        "Running Migration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName);
 
-                foreach (var sqlStatement in task.SqlStatements)
-                {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
-                    using (var conn = new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnection)))
+                    var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                    if (migrationAttribute == null)
+                        throw new InvalidOperationException(
+                            $"Migration {migration.GetType().Name} must have a migration attribute");
+
+                    if (versionInfo.ProcessedMigrations.Any(pm =>
+                        pm.Name == migration.GetType().Name &&
+                        pm.Timestamp == migrationAttribute.Timestamp))
                     {
-                        conn.Open();
-                        data.Add(sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            "Migration: " + task.Description + " On Collection: " + task.CollectionName +
+                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                        continue;
                     }
-                }
 
-                var documents = operation.GetDocuments(
-                    task.DatabaseName,
-                    task.CollectionName);
+                    var data = new Dictionary<string, IList<dynamic>>();
 
-                foreach (var document in documents)
-                {
-                    task.Map(context.Log, document, data);
+                    foreach (var sqlStatement in task.SqlStatements)
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
+                        using (
+                            var conn = new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnection))
+                        )
+                        {
+                            conn.Open();
+                            data.Add(sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                        }
+                    }
 
-                    operation.UpsertDocument(
+                    var documents = operation.GetDocuments(
                         task.DatabaseName,
-                        task.CollectionName,
-                        document);
-                }
+                        task.CollectionName);
 
-                versionInfo.ProcessedMigrations.Add(new MigrationInfo
-                {
-                    Name = migration.GetType().Name,
-                    Description = task.Description,
-                    Timestamp = migrationAttribute.Timestamp,
-                    AppliedOn = DateTime.UtcNow
-                });
+                    foreach (var document in documents)
+                    {
+                        task.Map(context.Log, document, data);
+
+                        operation.UpsertDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+
+                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                    {
+                        Name = migration.GetType().Name,
+                        Description = task.Description,
+                        Timestamp = migrationAttribute.Timestamp,
+                        AppliedOn = DateTime.UtcNow
+                    });
+                }
 
                 operation.UpsertVersionInfo(
-                    task.DatabaseName,
-                    versionInfo);
+                        key[0],
+                        versionInfo);
             }
 
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");

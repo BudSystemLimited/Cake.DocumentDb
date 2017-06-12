@@ -46,7 +46,7 @@ namespace Cake.DocumentDb.Requests
                 .AsEnumerable()
                 .FirstOrDefault();
 
-            return versionInfo ?? new VersionInfo { Id = collection };
+            return (dynamic)versionInfo ?? new VersionInfo { Id = collection };
         }
 
         public void UpsertVersionInfo(
