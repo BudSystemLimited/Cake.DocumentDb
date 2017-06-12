@@ -73,15 +73,17 @@
     <Compile Include="Attributes\ProfileAttribute.cs" />
     <Compile Include="ConnectionSettings.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
+    <Compile Include="Migration\Loqacious\SqlMigrationConfigurationCreator.cs" />
+    <Compile Include="Migration\Loqacious\SqlMigrationTask.cs" />
     <Compile Include="Migration\Migration.cs" />
     <Compile Include="Migration\Loqacious\MigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\MigrationTask.cs" />
+    <Compile Include="Migration\SqlMigration.cs" />
     <Compile Include="Migration\SqlStatement.cs" />
     <Compile Include="Seed\EmbeddedDocumentSeed.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Database\ICreateDocumentDatabase.cs" />
     <Compile Include="Collection\ICreateDocumentDatabaseCollection.cs" />
-    <Compile Include="Migration\ISqlDocumentMigration.cs" />
     <Compile Include="Seed\ISeedDocument.cs" />
     <Compile Include="Migration\MigrationInfo.cs" />
     <Compile Include="Migration\VersionInfo.cs" />
@@ -96,7 +98,6 @@
     <Compile Include="Requests\DocumentOperations.cs" />
     <Compile Include="DocumentDbMigrationSettings.cs" />
     <Compile Include="SqlDatabaseConnectionSettings.cs" />
-    <Compile Include="Migration\SqlDocumentMigration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

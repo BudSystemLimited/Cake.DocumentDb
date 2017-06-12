@@ -7,30 +7,35 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("local")]
     [Migration(201706121140)]
-    public class AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile : SqlDocumentMigration
+    public class AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile : SqlMigration
     {
-        public override string Description => "Add property populated from sql local";
-        public override string DatabaseName => "cakeddbmigrationtest";
-        public override string CollectionName => "MyCollection";
-        public override string PartitionKey => "/mypartitionKey";
-
-        public override SqlStatement[] SqlStatements => new[]
+        public AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile()
         {
-            new SqlStatement { DataSource = "MyDataSourceOne", Statement = "SELECT * FROM Records" }
-        };
+            Migrate(m =>
+            {
+                m.Description("Add property populated from sql local");
+                m.DatabaseName("cakeddbmigrationtest");
+                m.CollectionName("MyCollection");
+                m.PartitionKey("/mypartitionKey");
+                m.SqlStatements(new[]
+                {
+                    new SqlStatement {DataSource = "MyDataSourceOne", Statement = "SELECT * FROM Records"}
+                });
+                m.Map((log, item, data) =>
+                {
+                    log.Write(Verbosity.Normal, LogLevel.Information, $"Trying to find record with id: {item.id.ToString()}");
 
-        public override void Transform(dynamic item)
-        {
-            Log.Write(Verbosity.Normal, LogLevel.Information, $"Trying to find record with id: {item.id.ToString()}");
+                    var record = data["MyDataSourceOne"].SingleOrDefault(r => r.Id.ToString() == item.id.ToString());
 
-            var record = Data["MyDataSourceOne"].SingleOrDefault(r => r.Id.ToString() == item.id.ToString());
+                    if (record == null)
+                        return;
 
-            if (record == null)
-                return;
+                    log.Write(Verbosity.Normal, LogLevel.Information, $"Found record with id: {item.id.ToString()}");
+                    log.Write(Verbosity.Normal, LogLevel.Information, $"Adding property sqlPopulatedPropertyLocal with value : {record.LocalTitle}");
 
-            Log.Write(Verbosity.Normal, LogLevel.Information, $"Found record with id: {item.id.ToString()}");
-            Log.Write(Verbosity.Normal, LogLevel.Information, $"Adding property sqlPopulatedPropertyLocal with value : {record.LocalTitle}");
-            item.sqlPopulatedPropertyLocal = record.LocalTitle;
+                    item.sqlPopulatedPropertyLocal = record.LocalTitle;
+                });
+            });
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -7,6 +9,7 @@ using Cake.DocumentDb.Attributes;
 using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
+using Dapper;
 
 namespace Cake.DocumentDb.Operations
 {
@@ -83,20 +86,19 @@ namespace Cake.DocumentDb.Operations
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
-            var migrations = InstanceProvider.GetInstances<ISqlDocumentMigration>(assembly, settings.Profile);
+            var migrations = InstanceProvider.GetInstances<SqlMigration>(assembly, settings.Profile);
 
             var operation = new DocumentOperations(settings.Connection, context);
 
             foreach (var migration in migrations)
             {
-                migration.Log = context.Log;
-                migration.ConnectionDetails = settings.SqlConnection;
+                var task = migration.Task;
 
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName);
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
 
                 var versionInfo = operation.GetVersionInfo(
-                    migration.DatabaseName,
-                    migration.CollectionName);
+                    task.DatabaseName,
+                    task.CollectionName);
 
                 var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
 
@@ -107,40 +109,57 @@ namespace Cake.DocumentDb.Operations
                     pm.Name == migration.GetType().Name &&
                     pm.Timestamp == migrationAttribute.Timestamp))
                 {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName + " Has Already Been Executed");
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
                     continue;
                 }
 
-                migration.ExecuteSql();
+                var data = new Dictionary<string, IList<dynamic>>();
+
+                foreach (var sqlStatement in task.SqlStatements)
+                {
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
+                    using (var conn = new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnection)))
+                    {
+                        conn.Open();
+                        data.Add(sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                    }
+                }
 
                 var documents = operation.GetDocuments(
-                    migration.DatabaseName,
-                    migration.CollectionName);
+                    task.DatabaseName,
+                    task.CollectionName);
 
                 foreach (var document in documents)
                 {
-                    migration.Transform(document);
+                    task.Map(context.Log, document, data);
 
                     operation.UpsertDocument(
-                        migration.DatabaseName,
-                        migration.CollectionName,
+                        task.DatabaseName,
+                        task.CollectionName,
                         document);
                 }
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
                     Name = migration.GetType().Name,
-                    Description = migration.Description,
+                    Description = task.Description,
                     Timestamp = migrationAttribute.Timestamp,
                     AppliedOn = DateTime.UtcNow
                 });
 
                 operation.UpsertVersionInfo(
-                    migration.DatabaseName,
+                    task.DatabaseName,
                     versionInfo);
             }
 
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
+        }
+
+        private static string GetConnection(string source, IEnumerable<SqlDatabaseConnectionSettings> settings)
+        {
+            var databaseConnectionDetail = settings.FirstOrDefault(cd => string.Equals(cd.DataSource, source, StringComparison.CurrentCultureIgnoreCase));
+
+            return databaseConnectionDetail?.ConnectionString;
         }
     }
 }
