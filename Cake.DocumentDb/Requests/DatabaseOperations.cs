@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Cake.Core;
 using Cake.DocumentDb.Factories;
-using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
 
 namespace Cake.DocumentDb.Requests
@@ -19,7 +18,7 @@ namespace Cake.DocumentDb.Requests
             this.client = clientFactory.GetClient();
         }
 
-        public Database GetOrCreateDatabaseIfNotExists(string database)
+        public Microsoft.Azure.Documents.Database GetOrCreateDatabaseIfNotExists(string database)
         {
             var response = client.CreateDatabaseQuery()
                  .Where(db => db.Id == database)
@@ -30,7 +29,7 @@ namespace Cake.DocumentDb.Requests
                 return response;
 
             response = client.CreateDatabaseAsync(
-                new Database
+                new Microsoft.Azure.Documents.Database
                 {
                     Id = database
                 }).Result;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Cake.DocumentDb.Migrations
+namespace Cake.DocumentDb.Migration
 {
     public class MigrationInfo
     {

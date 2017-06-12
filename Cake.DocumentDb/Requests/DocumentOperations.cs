@@ -2,7 +2,7 @@
 using System.Linq;
 using Cake.Core;
 using Cake.DocumentDb.Factories;
-using Cake.DocumentDb.Migrations;
+using Cake.DocumentDb.Migration;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;

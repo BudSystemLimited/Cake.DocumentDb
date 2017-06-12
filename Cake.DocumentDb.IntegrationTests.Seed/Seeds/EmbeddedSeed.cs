@@ -1,4 +1,6 @@
-﻿namespace Cake.DocumentDb.IntegrationTests.Seed.Seeds
+﻿using Cake.DocumentDb.Seed;
+
+namespace Cake.DocumentDb.IntegrationTests.Seed.Seeds
 {
     public class EmbeddedSeed : EmbeddedDocumentSeed
     {

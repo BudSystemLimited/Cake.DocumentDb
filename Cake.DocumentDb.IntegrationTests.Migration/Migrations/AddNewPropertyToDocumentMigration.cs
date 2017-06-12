@@ -1,7 +1,7 @@
 ﻿using System;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
-using Cake.DocumentDb.Interfaces;
+using Cake.DocumentDb.Migration;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {

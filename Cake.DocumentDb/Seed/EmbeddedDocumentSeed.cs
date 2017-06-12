@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using Cake.DocumentDb.Interfaces;
 using Newtonsoft.Json;
 
-namespace Cake.DocumentDb
+namespace Cake.DocumentDb.Seed
 {
     public abstract class EmbeddedDocumentSeed : ISeedDocument
     {

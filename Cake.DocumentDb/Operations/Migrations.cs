@@ -4,8 +4,7 @@ using System.Reflection;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
-using Cake.DocumentDb.Interfaces;
-using Cake.DocumentDb.Migrations;
+using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 
@@ -91,7 +90,7 @@ namespace Cake.DocumentDb.Operations
             foreach (var migration in migrations)
             {
                 migration.Log = context.Log;
-                migration.ConnectionDetails = settings.SqlConnectionDetails;
+                migration.ConnectionDetails = settings.SqlConnection;
 
                 context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName);
 

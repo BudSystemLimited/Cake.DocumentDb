@@ -1,4 +1,4 @@
-﻿using Cake.DocumentDb.Interfaces;
+﻿using Cake.DocumentDb.Database;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration
 {

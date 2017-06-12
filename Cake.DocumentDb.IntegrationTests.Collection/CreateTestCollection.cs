@@ -1,4 +1,4 @@
-﻿using Cake.DocumentDb.Interfaces;
+﻿using Cake.DocumentDb.Collection;
 
 namespace Cake.DocumentDb.IntegrationTests.Collection
 {

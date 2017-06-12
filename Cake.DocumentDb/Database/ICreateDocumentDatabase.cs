@@ -1,4 +1,4 @@
-﻿namespace Cake.DocumentDb.Interfaces
+﻿namespace Cake.DocumentDb.Database
 {
     public interface ICreateDocumentDatabase
     {

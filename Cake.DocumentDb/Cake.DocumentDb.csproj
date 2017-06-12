@@ -73,15 +73,16 @@
     <Compile Include="Attributes\ProfileAttribute.cs" />
     <Compile Include="ConnectionSettings.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
-    <Compile Include="EmbeddedDocumentSeed.cs" />
+    <Compile Include="Migration\SqlStatement.cs" />
+    <Compile Include="Seed\EmbeddedDocumentSeed.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
-    <Compile Include="Interfaces\ICreateDocumentDatabase.cs" />
-    <Compile Include="Interfaces\ICreateDocumentDatabaseCollection.cs" />
-    <Compile Include="Interfaces\IDocumentMigration.cs" />
-    <Compile Include="Interfaces\ISqlDocumentMigration.cs" />
-    <Compile Include="Interfaces\ISeedDocument.cs" />
-    <Compile Include="Migrations\MigrationInfo.cs" />
-    <Compile Include="Migrations\VersionInfo.cs" />
+    <Compile Include="Database\ICreateDocumentDatabase.cs" />
+    <Compile Include="Collection\ICreateDocumentDatabaseCollection.cs" />
+    <Compile Include="Migration\IDocumentMigration.cs" />
+    <Compile Include="Migration\ISqlDocumentMigration.cs" />
+    <Compile Include="Seed\ISeedDocument.cs" />
+    <Compile Include="Migration\MigrationInfo.cs" />
+    <Compile Include="Migration\VersionInfo.cs" />
     <Compile Include="Operations\CollectionCreations.cs" />
     <Compile Include="Operations\DatabaseCreations.cs" />
     <Compile Include="Operations\Migrations.cs" />
@@ -92,8 +93,8 @@
     <Compile Include="Requests\DatabaseOperations.cs" />
     <Compile Include="Requests\DocumentOperations.cs" />
     <Compile Include="DocumentDbMigrationSettings.cs" />
-    <Compile Include="SqlDatabaseConnectionDetail.cs" />
-    <Compile Include="SqlDocumentMigration.cs" />
+    <Compile Include="SqlDatabaseConnectionSettings.cs" />
+    <Compile Include="Migration\SqlDocumentMigration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -21,7 +21,7 @@ namespace Cake.DocumentDb
             DatabaseCreations.Run(context, assembly, settings);
             CollectionCreations.Run(context, assembly, settings);
             Seeds.Run(context, assembly, settings);
-            Operations.Migrations.Run(context, assembly, settings);
+            Migrations.Run(context, assembly, settings);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Cake.DocumentDb.Interfaces
+﻿namespace Cake.DocumentDb.Seed
 {
     public interface ISeedDocument
     {

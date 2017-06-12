@@ -1,5 +1,5 @@
 ﻿using Cake.DocumentDb.Attributes;
-using Cake.DocumentDb.Interfaces;
+using Cake.DocumentDb.Seed;
 
 namespace Cake.DocumentDb.IntegrationTests.Seed.Seeds
 {

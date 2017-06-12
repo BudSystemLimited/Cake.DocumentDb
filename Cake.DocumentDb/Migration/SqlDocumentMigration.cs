@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Cake.Core.Diagnostics;
-using Cake.DocumentDb.Interfaces;
+using Cake.DocumentDb.Migration;
 using Dapper;
 
 namespace Cake.DocumentDb
@@ -11,7 +11,7 @@ namespace Cake.DocumentDb
     public abstract class SqlDocumentMigration : ISqlDocumentMigration
     {
         public ICakeLog Log { get; set; }
-        public SqlDatabaseConnectionDetail[] ConnectionDetails { get; set; }
+        public SqlDatabaseConnectionSettings[] ConnectionDetails { get; set; }
         protected IDictionary<string, IEnumerable<dynamic>> Data { get; set; }
 
         public abstract string Description { get; }
@@ -45,11 +45,5 @@ namespace Cake.DocumentDb
 
             return databaseConnectionDetail?.ConnectionString;
         }
-    }
-
-    public class SqlStatement
-    {
-        public string DataSource { get; set; }
-        public string Statement { get; set; }
     }
 }

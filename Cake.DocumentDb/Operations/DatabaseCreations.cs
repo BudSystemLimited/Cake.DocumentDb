@@ -1,6 +1,6 @@
 ﻿using Cake.Core;
 using Cake.Core.Diagnostics;
-using Cake.DocumentDb.Interfaces;
+using Cake.DocumentDb.Database;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 
