@@ -8,10 +8,10 @@ namespace Cake.DocumentDb.Factories
 {
     public class ClientFactory
     {
-        private readonly DocumentConnectionSettings settings;
+        private readonly ConnectionSettings settings;
         private readonly ICakeContext context;
 
-        public ClientFactory(DocumentConnectionSettings settings, ICakeContext context)
+        public ClientFactory(ConnectionSettings settings, ICakeContext context)
         {
             this.settings = settings;
             this.context = context;

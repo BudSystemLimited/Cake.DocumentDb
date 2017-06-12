@@ -14,7 +14,7 @@ namespace Cake.DocumentDb.Requests
         private readonly IReliableReadWriteDocumentClient client;
         private readonly CollectionOperations collectionOperations;
 
-        public DocumentOperations(DocumentConnectionSettings settings, ICakeContext context)
+        public DocumentOperations(ConnectionSettings settings, ICakeContext context)
             :this(new ClientFactory(settings, context), new CollectionOperations(settings, context))
         { }
 

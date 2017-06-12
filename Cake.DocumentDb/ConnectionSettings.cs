@@ -1,6 +1,12 @@
 ﻿namespace Cake.DocumentDb
 {
-    public class DocumentConnectionSettings
+    public class DocumentDbMigrationSettings
+    {
+        public ConnectionSettings Connection { get; set; }
+        public string Profile { get; set; }
+    }
+
+    public class ConnectionSettings
     {
         public string Endpoint { get; set; }
         public string Key { get; set; }

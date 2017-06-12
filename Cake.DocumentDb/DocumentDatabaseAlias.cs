@@ -6,6 +6,7 @@ using Cake.Core.Annotations;
 using Cake.DocumentDb.Attributes;
 using Cake.DocumentDb.Interfaces;
 using Cake.DocumentDb.Migrations;
+using Cake.DocumentDb.Operations;
 using Cake.DocumentDb.Requests;
 using LogLevel = Cake.Core.Diagnostics.LogLevel;
 using Verbosity = Cake.Core.Diagnostics.Verbosity;
@@ -16,41 +17,21 @@ namespace Cake.DocumentDb
     public static class DocumentDatabaseAlias
     {
         [CakeMethodAlias]
-        public static void RunDocumentSeed(this ICakeContext context, string assembly, DocumentConnectionSettings settings, string profile)
+        public static void RunDocumentSeed(this ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Using Profile: " + profile);
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Using Profile: " + settings.Profile);
 
-            RunDatabaseCreations(assembly, settings, profile, context);
-            RunDatabaseCollectionCreations(assembly, settings, profile, context);
-            RunSeeds(assembly, settings, profile, context);
-            RunMigrations(assembly, settings, profile, context);
-            RunSqlMigrations(assembly, settings, profile, context);
+            DatabaseCreations.Run(context, assembly, settings);
+            RunDatabaseCollectionCreations(assembly, settings.Connection, settings.Profile, context);
+            RunSeeds(assembly, settings.Connection, settings.Profile, context);
+            RunMigrations(assembly, settings.Connection, settings.Profile, context);
+            RunSqlMigrations(assembly, settings.Connection, settings.Profile, context);
         }
 
-        private static void RunDatabaseCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
-        {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Creations");
-
-            var databases = (from t in Assembly.LoadFile(assembly).GetTypes()
-                        where t.GetInterfaces().Contains(typeof(ICreateDocumentDatabase)) && t.GetConstructor(Type.EmptyTypes) != null && (t.CustomAttributes.All(a => a.AttributeType != typeof(ProfileAttribute)) || t.GetCustomAttribute<ProfileAttribute>().Profiles.Contains(profile))
-                             select Activator.CreateInstance(t) as ICreateDocumentDatabase)
-                        .ToList();
-
-            var operation = new DatabaseOperations(settings, context);
-
-            foreach (var database in databases)
-            {
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Creating Database: " + database.Name);
-                operation.GetOrCreateDatabaseIfNotExists(database.Name);
-            }
-
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Database Creations");
-        }
-
-        private static void RunDatabaseCollectionCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
+        private static void RunDatabaseCollectionCreations(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Database Collection Creations");
 
@@ -75,7 +56,7 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Database Collection Creations");
         }
 
-        private static void RunMigrations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
+        private static void RunMigrations(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
@@ -139,7 +120,7 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
         }
 
-        private static void RunSqlMigrations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
+        private static void RunSqlMigrations(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
@@ -206,7 +187,7 @@ namespace Cake.DocumentDb
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
         }
 
-        private static void RunSeeds(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)
+        private static void RunSeeds(string assembly, ConnectionSettings settings, string profile, ICakeContext context)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Seeds");
 

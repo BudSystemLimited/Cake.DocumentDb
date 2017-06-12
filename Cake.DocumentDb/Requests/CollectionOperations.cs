@@ -12,7 +12,7 @@ namespace Cake.DocumentDb.Requests
         private readonly IReliableReadWriteDocumentClient client;
         private readonly DatabaseOperations databaseOperations;
 
-        public CollectionOperations(DocumentConnectionSettings settings, ICakeContext context)
+        public CollectionOperations(ConnectionSettings settings, ICakeContext context)
             :this(new ClientFactory(settings, context), new DatabaseOperations(settings, context))
         { }
 
