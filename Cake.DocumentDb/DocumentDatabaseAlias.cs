@@ -26,7 +26,7 @@ namespace Cake.DocumentDb
             RunDatabaseCreations(assembly, settings, profile, context);
             RunDatabaseCollectionCreations(assembly, settings, profile, context);
             RunMigrations(assembly, settings, profile, context);
-            //RunSeeds(assembly, settings, profile, context);
+            RunSeeds(assembly, settings, profile, context);
         }
 
         private static void RunDatabaseCreations(string assembly, DocumentConnectionSettings settings, string profile, ICakeContext context)

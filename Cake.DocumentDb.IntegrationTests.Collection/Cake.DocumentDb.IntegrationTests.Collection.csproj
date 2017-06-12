@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateTestCollection.cs" />
+    <Compile Include="CreateTestCollectionWithLocalProfile.cs" />
+    <Compile Include="CreateTestCollectionWithRandomProfileWillNotCreate.cs" />
     <Compile Include="CreateTestDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

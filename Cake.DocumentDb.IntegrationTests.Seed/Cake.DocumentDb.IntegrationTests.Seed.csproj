@@ -45,6 +45,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seeds\InterfaceSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
+    <Compile Include="Seeds\SeedWithLocalProfile.cs" />
+    <Compile Include="Seeds\SeedWithRandomProfileWillNotCreate.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cake.DocumentDb\Cake.DocumentDb.csproj">
