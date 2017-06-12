@@ -5,6 +5,45 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb", "Cake.DocumentDb\Cake.DocumentDb.csproj", "{1820DC2A-88E0-440B-A361-3EABC415394A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{5AE81728-9A13-4573-97A7-F7ECE4A282E8}"
+	ProjectSection(SolutionItems) = preProject
+		database.cake = database.cake
+		database.ps1 = database.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Database", "Cake.DocumentDb.IntegrationTests.Database\Cake.DocumentDb.IntegrationTests.Database.csproj", "{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{27FFCBDA-46F7-4731-BD1E-F9D5CBE5F4A6}"
+	ProjectSection(SolutionItems) = preProject
+		tools\packages.config = tools\packages.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Collection", "Collection", "{41BB7F88-B50A-47B6-92B7-6C6ED6B53D4B}"
+	ProjectSection(SolutionItems) = preProject
+		collection.cake = collection.cake
+		collection.ps1 = collection.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Collection", "Cake.DocumentDb.IntegrationTests.Collection\Cake.DocumentDb.IntegrationTests.Collection.csproj", "{DD3CE520-BBB5-4D78-926D-562C05BA54BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Seed", "Seed", "{A44F3E5A-1B15-4271-A105-D2B043470C8E}"
+	ProjectSection(SolutionItems) = preProject
+		seed.cake = seed.cake
+		seed.ps1 = seed.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Seed", "Cake.DocumentDb.IntegrationTests.Seed\Cake.DocumentDb.IntegrationTests.Seed.csproj", "{041F9D01-069A-4D53-90C3-AA3EEEEA1656}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migration", "Migration", "{0ADB0209-80FC-4831-86B8-3CD50E25E28A}"
+	ProjectSection(SolutionItems) = preProject
+		migration.cake = migration.cake
+		migration.ps1 = migration.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Migration", "Cake.DocumentDb.IntegrationTests.Migration\Cake.DocumentDb.IntegrationTests.Migration.csproj", "{1BC846FF-C6F7-4941-B603-B02F4D68CC53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +54,35 @@ Global
 		{1820DC2A-88E0-440B-A361-3EABC415394A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1820DC2A-88E0-440B-A361-3EABC415394A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1820DC2A-88E0-440B-A361-3EABC415394A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD3CE520-BBB5-4D78-926D-562C05BA54BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD3CE520-BBB5-4D78-926D-562C05BA54BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD3CE520-BBB5-4D78-926D-562C05BA54BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD3CE520-BBB5-4D78-926D-562C05BA54BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{041F9D01-069A-4D53-90C3-AA3EEEEA1656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{041F9D01-069A-4D53-90C3-AA3EEEEA1656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{041F9D01-069A-4D53-90C3-AA3EEEEA1656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{041F9D01-069A-4D53-90C3-AA3EEEEA1656}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BC846FF-C6F7-4941-B603-B02F4D68CC53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BC846FF-C6F7-4941-B603-B02F4D68CC53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BC846FF-C6F7-4941-B603-B02F4D68CC53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BC846FF-C6F7-4941-B603-B02F4D68CC53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5AE81728-9A13-4573-97A7-F7ECE4A282E8} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
+		{0FF5E6C3-BD25-4A16-8C3B-5453D26D4D12} = {5AE81728-9A13-4573-97A7-F7ECE4A282E8}
+		{41BB7F88-B50A-47B6-92B7-6C6ED6B53D4B} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
+		{DD3CE520-BBB5-4D78-926D-562C05BA54BF} = {41BB7F88-B50A-47B6-92B7-6C6ED6B53D4B}
+		{A44F3E5A-1B15-4271-A105-D2B043470C8E} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
+		{041F9D01-069A-4D53-90C3-AA3EEEEA1656} = {A44F3E5A-1B15-4271-A105-D2B043470C8E}
+		{0ADB0209-80FC-4831-86B8-3CD50E25E28A} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
+		{1BC846FF-C6F7-4941-B603-B02F4D68CC53} = {0ADB0209-80FC-4831-86B8-3CD50E25E28A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8
