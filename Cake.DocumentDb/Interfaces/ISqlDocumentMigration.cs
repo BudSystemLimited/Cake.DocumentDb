@@ -7,8 +7,8 @@ namespace Cake.DocumentDb.Interfaces
         ICakeLog Log { get; set; }
         SqlDatabaseConnectionDetail[] ConnectionDetails { get; set; }
         string Description { get; }
-        string Database { get; }
-        string Collection { get; }
+        string DatabaseName { get; }
+        string CollectionName { get; }
         string PartitionKey { get; }
         SqlStatement[] SqlStatements { get; }
         void Transform(dynamic item);

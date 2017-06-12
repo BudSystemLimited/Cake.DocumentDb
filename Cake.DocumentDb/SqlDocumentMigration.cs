@@ -15,8 +15,8 @@ namespace Cake.DocumentDb
         protected IDictionary<string, IEnumerable<dynamic>> Data { get; set; }
 
         public abstract string Description { get; }
-        public abstract string Database { get; }
-        public abstract string Collection { get; }
+        public abstract string DatabaseName { get; }
+        public abstract string CollectionName { get; }
         public abstract string PartitionKey { get; }
         public abstract SqlStatement[] SqlStatements { get; }
         public abstract void Transform(dynamic item);

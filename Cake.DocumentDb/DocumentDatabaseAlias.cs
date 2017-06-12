@@ -155,11 +155,11 @@ namespace Cake.DocumentDb
                 migration.Log = context.Log;
                 migration.ConnectionDetails = settings.SqlConnectionDetails;
 
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.Collection + " On Database: " + migration.Database);
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName);
 
                 var versionInfo = operation.GetVersionInfo(
-                    migration.Database,
-                    migration.Collection);
+                    migration.DatabaseName,
+                    migration.CollectionName);
 
                 var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
 
@@ -170,23 +170,23 @@ namespace Cake.DocumentDb
                     pm.Name == migration.GetType().Name &&
                     pm.Timestamp == migrationAttribute.Timestamp))
                 {
-                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.Collection + " On Database: " + migration.Database + " Has Already Been Executed");
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + migration.Description + " On Collection: " + migration.CollectionName + " On Database: " + migration.DatabaseName + " Has Already Been Executed");
                     continue;
                 }
 
                 migration.ExecuteSql();
 
                 var documents = operation.GetDocuments(
-                    migration.Database,
-                    migration.Collection);
+                    migration.DatabaseName,
+                    migration.CollectionName);
 
                 foreach (var document in documents)
                 {
                     migration.Transform(document);
 
                     operation.UpsertDocument(
-                        migration.Database,
-                        migration.Collection,
+                        migration.DatabaseName,
+                        migration.CollectionName,
                         document);
                 }
 
@@ -199,7 +199,7 @@ namespace Cake.DocumentDb
                 });
 
                 operation.UpsertVersionInfo(
-                    migration.Database,
+                    migration.DatabaseName,
                     versionInfo);
             }
 
