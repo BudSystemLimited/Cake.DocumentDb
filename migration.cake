@@ -34,7 +34,7 @@ Task("Default")
 						Endpoint = "https://localhost:8081",
 						Key = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
 					},
-					SqlConnection = new []
+					SqlConnections = new []
 					{
 						new SqlDatabaseConnectionSettings { DataSource = "MyDataSourceOne", ConnectionString = "Server=.;Database=cake-documentdb;User Id=sa;Password=ChorusAlan;" }
 					},

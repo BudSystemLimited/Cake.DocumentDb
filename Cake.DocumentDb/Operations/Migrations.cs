@@ -136,7 +136,7 @@ namespace Cake.DocumentDb.Operations
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
                         using (
-                            var conn = new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnection))
+                            var conn = new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnections))
                         )
                         {
                             conn.Open();
