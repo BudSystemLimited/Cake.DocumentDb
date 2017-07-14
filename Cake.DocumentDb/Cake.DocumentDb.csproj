@@ -69,9 +69,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncHelpers.cs" />
     <Compile Include="Attributes\MigrationAttribute.cs" />
     <Compile Include="Attributes\ProfileAttribute.cs" />
     <Compile Include="ConnectionSettings.cs" />
+    <Compile Include="Deletion\Loqacious\DeletionConfigurationCreator.cs" />
+    <Compile Include="Deletion\Loqacious\DeletionTask.cs" />
+    <Compile Include="Deletion\DeleteDocuments.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
     <Compile Include="Migration\Loqacious\SqlMigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\SqlMigrationTask.cs" />
@@ -80,6 +84,7 @@
     <Compile Include="Migration\Loqacious\MigrationTask.cs" />
     <Compile Include="Migration\SqlMigration.cs" />
     <Compile Include="Migration\SqlStatement.cs" />
+    <Compile Include="Operations\Deletions.cs" />
     <Compile Include="Seed\EmbeddedDocumentSeed.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Database\ICreateDocumentDatabase.cs" />

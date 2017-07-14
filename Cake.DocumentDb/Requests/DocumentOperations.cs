@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Cake.Core;
+using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Factories;
 using Cake.DocumentDb.Migration;
 using Microsoft.Azure.Documents;
@@ -11,12 +15,15 @@ namespace Cake.DocumentDb.Requests
 {
     public class DocumentOperations
     {
+        private readonly ICakeContext context;
         private readonly IReliableReadWriteDocumentClient client;
         private readonly CollectionOperations collectionOperations;
 
         public DocumentOperations(ConnectionSettings settings, ICakeContext context)
-            :this(new ClientFactory(settings, context), new CollectionOperations(settings, context))
-        { }
+            : this(new ClientFactory(settings, context), new CollectionOperations(settings, context))
+        {
+            this.context = context;
+        }
 
         public DocumentOperations(ClientFactory clientFactory, CollectionOperations collectionOperations)
         {
@@ -104,6 +111,44 @@ namespace Cake.DocumentDb.Requests
                 document,
                 requestOptions,
                 true).Result;
+        }
+
+        public void DeleteDocuments(
+            string database,
+            string collection,
+            Func<dynamic, bool> filter, 
+            string partitionKeyPath = null,
+            Func<dynamic, object> partitionKeyAccessor = null,
+            int? throughput = null)
+        {
+            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
+                database,
+                collection,
+                partitionKeyPath,
+                throughput);
+
+            context.Log.Information("Before Query");
+
+            var documents = client.CreateDocumentQuery<dynamic>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+                .Where(filter)
+                .AsEnumerable()
+                .ToList();
+
+            foreach (var document in documents)
+            {
+                var requestOptions = new RequestOptions();
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Removing document from database: {database} collection: {collection} with id: {document.id}");
+
+                if (partitionKeyAccessor != null)
+                {
+                    var key = partitionKeyAccessor(document);
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Partition key of {key}");
+                    requestOptions.PartitionKey = new PartitionKey(key);
+                }
+
+                var result = client.DeleteDocumentAsync(document._self, requestOptions).Result;
+            }
         }
     }
 }
