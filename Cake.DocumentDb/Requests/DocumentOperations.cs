@@ -88,6 +88,30 @@ namespace Cake.DocumentDb.Requests
                 .ToList();
         }
 
+        public IList<dynamic> GetDocuments(
+            string database,
+            string collection,
+            Func<dynamic, bool> filter,
+            string partitionKeyPath = null,
+            int? throughput = null)
+        {
+            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
+                database,
+                collection,
+                partitionKeyPath,
+                throughput);
+
+            var requestOptions = new RequestOptions();
+
+            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
+                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
+
+            return client.CreateDocumentQuery<dynamic>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+                .Where(filter)
+                .AsEnumerable()
+                .ToList();
+        }
+
         public Document UpsertDocument(
             string database,
             string collection,

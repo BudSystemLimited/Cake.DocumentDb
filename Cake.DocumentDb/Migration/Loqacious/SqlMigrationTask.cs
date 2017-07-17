@@ -12,6 +12,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
         public string PartitionKey { get; }
         public Action<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>> Map { get; }
         public SqlStatement[] SqlStatements { get; }
+        public Func<dynamic, bool> Filter { get; }
 
         public SqlMigrationTask(
             string description,
@@ -19,7 +20,8 @@ namespace Cake.DocumentDb.Migration.Loqacious
             string collectionName,
             string partitionKey,
             Action<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>> map,
-            SqlStatement[] sqlStatements)
+            SqlStatement[] sqlStatements,
+            Func<dynamic, bool> filter)
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Cannot be null or empty", nameof(description));
@@ -45,6 +47,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
             PartitionKey = partitionKey;
             Map = map;
             SqlStatements = sqlStatements;
+            Filter = filter;
         }
     }
 }

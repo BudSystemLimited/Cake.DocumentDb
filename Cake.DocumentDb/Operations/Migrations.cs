@@ -57,9 +57,21 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName);
+                    IList<dynamic> documents;
+
+                    if (task.Filter == null)
+                    {
+                        documents = operation.GetDocuments(
+                            task.DatabaseName,
+                            task.CollectionName);
+                    }
+                    else
+                    {
+                        documents = operation.GetDocuments(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            task.Filter);
+                    }
 
                     foreach (var document in documents)
                     {

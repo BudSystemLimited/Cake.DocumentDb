@@ -12,6 +12,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
         private string partitionKey;
         private Action<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>> map;
         private SqlStatement[] sqlStatements;
+        private Func<dynamic, bool> filter;
 
         public void Description(string setDescription)
         {
@@ -43,12 +44,18 @@ namespace Cake.DocumentDb.Migration.Loqacious
             sqlStatements = setSqlStatements;
         }
 
+        public void Filter(Func<dynamic, bool> setFilter)
+        {
+            filter = setFilter;
+        }
+
         internal SqlMigrationTask MigrationTask => new SqlMigrationTask(
             description,
             databaseName,
             collectionName,
             partitionKey,
             map,
-            sqlStatements);
+            sqlStatements,
+            filter);
     }
 }
