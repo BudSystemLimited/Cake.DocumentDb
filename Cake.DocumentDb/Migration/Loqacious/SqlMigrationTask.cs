@@ -32,9 +32,6 @@ namespace Cake.DocumentDb.Migration.Loqacious
             if (string.IsNullOrWhiteSpace(collectionName))
                 throw new ArgumentException("Cannot be null or empty", nameof(collectionName));
 
-            if (string.IsNullOrWhiteSpace(partitionKey))
-                throw new ArgumentException("Cannot be null or empty", nameof(partitionKey));
-
             if (map == null)
                 throw new ArgumentException("Cannot be null or empty", nameof(map));
 

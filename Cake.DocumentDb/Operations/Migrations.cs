@@ -184,7 +184,7 @@ namespace Cake.DocumentDb.Operations
                         versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Migrations");
         }
 
         private static string GetConnection(string source, IEnumerable<SqlDatabaseConnectionSettings> settings)

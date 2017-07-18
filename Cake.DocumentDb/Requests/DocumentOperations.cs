@@ -112,6 +112,31 @@ namespace Cake.DocumentDb.Requests
                 .ToList();
         }
 
+        public Document CreateDocument(
+            string database,
+            string collection,
+            object document,
+            string partitionKeyPath = null,
+            int? throughput = null)
+        {
+            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
+                database,
+                collection,
+                partitionKeyPath,
+                throughput);
+
+            var requestOptions = new RequestOptions();
+
+            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
+                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
+
+            return client.CreateDocumentAsync(
+                collectionResource.SelfLink,
+                document,
+                requestOptions,
+                true).Result;
+        }
+
         public Document UpsertDocument(
             string database,
             string collection,

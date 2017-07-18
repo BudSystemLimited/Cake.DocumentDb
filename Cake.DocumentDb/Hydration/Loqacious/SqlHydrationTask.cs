@@ -1,23 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using Cake.Core.Diagnostics;
+using Cake.DocumentDb.Migration;
 
-namespace Cake.DocumentDb.Deletion.Loqacious
+namespace Cake.DocumentDb.Hydration.Loqacious
 {
-    internal class DeletionTask
+    internal class SqlHydrationTask
     {
         public string Description { get; }
         public string DatabaseName { get; }
         public string CollectionName { get; }
         public string PartitionKey { get; }
-        public Func<dynamic, object> PartitionKeyAccessor;
-        public Func<dynamic, bool> Filter { get; }
+        public Func<ICakeLog, dynamic, object> DocumentCreator { get; }
+        public SqlStatement SqlStatement { get; }
 
-        public DeletionTask(
+        public SqlHydrationTask(
             string description,
             string databaseName,
             string collectionName,
             string partitionKey,
-            Func<dynamic, object> partitionKeyAccessor,
-            Func<dynamic, bool> filter)
+            Func<ICakeLog, dynamic, object> documentCreator,
+            SqlStatement sqlStatement)
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Cannot be null or empty", nameof(description));
@@ -28,15 +31,18 @@ namespace Cake.DocumentDb.Deletion.Loqacious
             if (string.IsNullOrWhiteSpace(collectionName))
                 throw new ArgumentException("Cannot be null or empty", nameof(collectionName));
 
-            if (filter == null)
-                throw new ArgumentException("Cannot be null or empty", nameof(filter));
+            if (documentCreator == null)
+                throw new ArgumentException("Cannot be null or empty", nameof(documentCreator));
+
+            if (sqlStatement == null)
+                throw new ArgumentException("Cannot be null or empty", nameof(sqlStatement));
 
             Description = description;
             DatabaseName = databaseName;
             CollectionName = collectionName;
             PartitionKey = partitionKey;
-            PartitionKeyAccessor = partitionKeyAccessor;
-            Filter = filter;
+            DocumentCreator = documentCreator;
+            SqlStatement = sqlStatement;
         }
     }
 }

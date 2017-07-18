@@ -52,6 +52,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deletions", "Deletions", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Deletions", "Cake.DocumentDb.IntegrationTests.Deletions\Cake.DocumentDb.IntegrationTests.Deletions.csproj", "{B218FB87-DC38-451E-B63A-2CBF8741B287}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hydrations", "Hydrations", "{CD16C5F8-F4BE-485F-A3C2-B3BC4C2DACF4}"
+	ProjectSection(SolutionItems) = preProject
+		hydration.cake = hydration.cake
+		hydration.ps1 = hydration.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.DocumentDb.IntegrationTests.Hydration", "Cake.DocumentDb.IntegrationTests.Hydration\Cake.DocumentDb.IntegrationTests.Hydration.csproj", "{23C25BF9-CC61-4476-9A8C-D54971DC820A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +90,10 @@ Global
 		{B218FB87-DC38-451E-B63A-2CBF8741B287}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B218FB87-DC38-451E-B63A-2CBF8741B287}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B218FB87-DC38-451E-B63A-2CBF8741B287}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23C25BF9-CC61-4476-9A8C-D54971DC820A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23C25BF9-CC61-4476-9A8C-D54971DC820A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23C25BF9-CC61-4476-9A8C-D54971DC820A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23C25BF9-CC61-4476-9A8C-D54971DC820A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +109,8 @@ Global
 		{1BC846FF-C6F7-4941-B603-B02F4D68CC53} = {0ADB0209-80FC-4831-86B8-3CD50E25E28A}
 		{60ABF00D-731B-46F4-9DE9-D289E04AAAD9} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
 		{B218FB87-DC38-451E-B63A-2CBF8741B287} = {60ABF00D-731B-46F4-9DE9-D289E04AAAD9}
+		{CD16C5F8-F4BE-485F-A3C2-B3BC4C2DACF4} = {2059C7F2-8C6E-4CA4-AD82-EAD0E1DAE1E4}
+		{23C25BF9-CC61-4476-9A8C-D54971DC820A} = {CD16C5F8-F4BE-485F-A3C2-B3BC4C2DACF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8
