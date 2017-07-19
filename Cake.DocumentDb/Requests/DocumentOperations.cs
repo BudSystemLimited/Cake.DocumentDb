@@ -130,11 +130,11 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.CreateDocumentAsync(
-                collectionResource.SelfLink,
-                document,
-                requestOptions,
-                true).Result;
+            return client.UpsertDocumentAsync(
+                    collectionResource.SelfLink,
+                    document,
+                    requestOptions,
+                    true).Result;
         }
 
         public Document UpsertDocument(

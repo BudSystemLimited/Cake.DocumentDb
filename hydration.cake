@@ -36,7 +36,8 @@ Task("Default")
 					},
 					SqlConnections = new []
 					{
-						new SqlDatabaseConnectionSettings { DataSource = "MyDataSourceOne", ConnectionString = "Server=.;Database=cake-documentdb;User Id=sa;Password=ChorusAlan;" }
+						new SqlDatabaseConnectionSettings { DataSource = "MyDataSourceOne", ConnectionString = "Server=.;Database=cake-documentdb;User Id=sa;Password=ChorusAlan;" },
+						new SqlDatabaseConnectionSettings { DataSource = "MyDataSourceTwo", ConnectionString = "Server=.;Database=cake-documentdb-two;User Id=sa;Password=ChorusAlan;" }
 					},
 					Profile = "local"
                 });

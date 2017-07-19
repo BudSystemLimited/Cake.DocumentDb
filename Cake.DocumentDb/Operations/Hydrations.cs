@@ -12,7 +12,6 @@ using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 using Dapper;
-using Newtonsoft.Json.Serialization;
 
 namespace Cake.DocumentDb.Operations
 {
@@ -64,6 +63,25 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
+                    var data = new Dictionary<string, IList<dynamic>>();
+
+                    if (task.AdditionalSqlStatements != null)
+                    {
+                        foreach (var sqlStatement in task.AdditionalSqlStatements)
+                        {
+                            context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                                $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
+                            using (
+                                var conn =
+                                    new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnections))
+                            )
+                            {
+                                conn.Open();
+                                data.Add(sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                            }
+                        }
+                    }
+
                     using (var conn = new SqlConnection(GetConnection(task.SqlStatement.DataSource, settings.SqlConnections)))
                     {
                         conn.Open();
@@ -72,7 +90,7 @@ namespace Cake.DocumentDb.Operations
 
                         foreach (var record in records)
                         {
-                            var document = task.DocumentCreator(context.Log, record);
+                            var document = task.DocumentCreator(context.Log, record, data);
 
                             operation.CreateDocument(
                                 task.DatabaseName,

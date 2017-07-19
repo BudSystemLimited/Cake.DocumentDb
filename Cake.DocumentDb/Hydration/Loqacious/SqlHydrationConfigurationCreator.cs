@@ -11,8 +11,9 @@ namespace Cake.DocumentDb.Hydration.Loqacious
         private string databaseName;
         private string collectionName;
         private string partitionKey;
-        private Func<ICakeLog, dynamic, object> documentCreator;
+        private Func<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>, object> documentCreator;
         private SqlStatement sqlStatement;
+        private SqlStatement[] additionalSqlStatements;
 
         public void Description(string setDescription)
         {
@@ -34,7 +35,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             partitionKey = setPartitionKey;
         }
 
-        public void DocumentCreator(Func<ICakeLog, dynamic, object> setDocumentCreator)
+        public void DocumentCreator(Func<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>, object> setDocumentCreator)
         {
             documentCreator = setDocumentCreator;
         }
@@ -44,12 +45,18 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             sqlStatement = setSqlStatement;
         }
 
+        public void AdditionalSqlStatements(SqlStatement[] setSqlStatements)
+        {
+            additionalSqlStatements = setSqlStatements;
+        }
+
         internal SqlHydrationTask MigrationTask => new SqlHydrationTask(
             description,
             databaseName,
             collectionName,
             partitionKey,
             documentCreator,
-            sqlStatement);
+            sqlStatement,
+            additionalSqlStatements);
     }
 }

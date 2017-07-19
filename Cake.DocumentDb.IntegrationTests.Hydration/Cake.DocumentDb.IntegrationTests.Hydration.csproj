@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
+    <Compile Include="Hydrations\PopulateFromSqlWithMultipleDatabases.cs" />
     <Compile Include="Hydrations\PopulateFromSql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

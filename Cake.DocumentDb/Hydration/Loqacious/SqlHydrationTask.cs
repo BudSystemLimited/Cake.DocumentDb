@@ -11,16 +11,18 @@ namespace Cake.DocumentDb.Hydration.Loqacious
         public string DatabaseName { get; }
         public string CollectionName { get; }
         public string PartitionKey { get; }
-        public Func<ICakeLog, dynamic, object> DocumentCreator { get; }
+        public Func<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>, object> DocumentCreator { get; }
         public SqlStatement SqlStatement { get; }
+        public SqlStatement[] AdditionalSqlStatements { get; }
 
         public SqlHydrationTask(
             string description,
             string databaseName,
             string collectionName,
             string partitionKey,
-            Func<ICakeLog, dynamic, object> documentCreator,
-            SqlStatement sqlStatement)
+            Func<ICakeLog, dynamic, IDictionary<string, IList<dynamic>>, object> documentCreator,
+            SqlStatement sqlStatement,
+            SqlStatement[] additionalSqlStatements = null)
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Cannot be null or empty", nameof(description));
@@ -43,6 +45,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             PartitionKey = partitionKey;
             DocumentCreator = documentCreator;
             SqlStatement = sqlStatement;
+            AdditionalSqlStatements = additionalSqlStatements;
         }
     }
 }
