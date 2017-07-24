@@ -44,17 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateDocumentMigrationOneCollection.cs" />
+    <Compile Include="CreateDocumentMigrationTwoCollection.cs" />
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithRandomProfile.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seeds\DocumentMigrationTwoSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
+    <Compile Include="Seeds\DocumentMigrationOneSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeedTwo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +74,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <EmbeddedResource Include="Seeds\embeddedseedtwo.json" />
+    <EmbeddedResource Include="Seeds\documentmigrationone.json" />
+    <EmbeddedResource Include="Seeds\documentmigrationtwo.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
