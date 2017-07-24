@@ -1,0 +1,62 @@
+﻿{
+  "id": "1",
+  "mypartitionKey": "1",
+  "firstname": "Embedded",
+  "surname": "Seed",
+  "children": [
+    {
+      "id": "1",
+      "name": "foo",
+      "grandChildren": [
+        {
+          "id": "10",
+          "name": "grandChild_1"
+        },
+        {
+          "id": "11",
+          "name": "grandChild_2"
+        },
+        {
+          "id": "12",
+          "name": "grandChild_3"
+        }
+      ] 
+    },
+    {
+      "id": "2",
+      "name": "bar",
+      "grandChildren": [
+        {
+          "id": "13",
+          "name": "grandChild_4"
+        },
+        {
+          "id": "14",
+          "name": "grandChild_5"
+        },
+        {
+          "id": "15",
+          "name": "grandChild_6"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "baz",
+      "grandChildren": [
+        {
+          "id": "16",
+          "name": "grandChild_7"
+        },
+        {
+          "id": "17",
+          "name": "grandChild_8"
+        },
+        {
+          "id": "18",
+          "name": "grandChild_9"
+        }
+      ]
+    }
+  ] 
+}

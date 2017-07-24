@@ -16,7 +16,7 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                 m.PartitionKey("/mypartitionKey");
                 m.Map((log, item) =>
                 {
-                    item.myNewLocalStringProperty = "my new local value";
+                    item["myNewLocalStringProperty"] = "my new local value";
                 });
             });
         }

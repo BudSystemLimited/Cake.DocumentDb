@@ -34,6 +34,10 @@
       <HintPath>..\packages\Cake.Core.0.16.1\lib\net45\Cake.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,10 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateCollectionMigrationAddPropertyToGrandChildCollection.cs" />
+    <Compile Include="CreateCollectionMigrationPropertyAdditionCollection.cs" />
     <Compile Include="CreateDocumentMigrationOneCollection.cs" />
     <Compile Include="CreateDocumentMigrationTwoCollection.cs" />
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
+    <Compile Include="Migrations\AddNewPropertyToGrandChildCollectionItemMigration.cs" />
+    <Compile Include="Migrations\AddNewPropertyToCollectionItemMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
@@ -57,6 +65,8 @@
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seeds\CollectionMigrationAddPropertyToGrandChildSeed.cs" />
+    <Compile Include="Seeds\CollectionMigrationPropertyAdditionSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationTwoSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationOneSeed.cs" />
@@ -76,6 +86,8 @@
     <EmbeddedResource Include="Seeds\embeddedseedtwo.json" />
     <EmbeddedResource Include="Seeds\documentmigrationone.json" />
     <EmbeddedResource Include="Seeds\documentmigrationtwo.json" />
+    <EmbeddedResource Include="Seeds\collectionmigrationpropertyaddition.json" />
+    <EmbeddedResource Include="Seeds\collectionmigrationaddpropertytograndchild.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,7 +16,7 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                 m.PartitionKey("/mypartitionKey");
                 m.Map((log, item) =>
                 {
-                    item.myNewRandomStringProperty = "my new random value";
+                    item["myNewRandomStringProperty"] = "my new random value";
                 });
             });
         }
