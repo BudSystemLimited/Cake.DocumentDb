@@ -153,7 +153,7 @@ namespace Cake.DocumentDb.Operations
                         )
                         {
                             conn.Open();
-                            data.Add(sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                            data.Add(sqlStatement.StatementLookupKey ?? sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
                         }
                     }
 
