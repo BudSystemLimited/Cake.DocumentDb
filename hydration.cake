@@ -1,3 +1,4 @@
+#addin "nuget:?package=Cake.SqlServer&version=1.6.1"
 #r .\tools\Dapper\lib\net45\Dapper.dll
 #r .\Cake.DocumentDb\bin\Debug\Cake.DocumentDb.dll
 #r .\tools\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll
@@ -20,7 +21,34 @@ var target = Argument("target", "Default");
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
+Task("Execute-Sql")
+    .IsDependentOn("Create-Database")
+    .Does(() =>
+    {
+        using (var connection = OpenSqlConnection("Server=.;User Id=sa;Password=ChorusAlan;Initial Catalog=cake-documentdb"))
+        {
+            ExecuteSqlFile(connection, "./cake-documentdb.sql");
+        }    
+
+        using (var connection = OpenSqlConnection("Server=.;User Id=sa;Password=ChorusAlan;Initial Catalog=cake-documentdb-two"))
+        {
+            ExecuteSqlFile(connection, "./cake-documentdb-two.sql");
+        }            
+    });
+
+Task("Create-Database")
+    .Does(() =>
+    {
+        Information("Create cake-documentdb");
+        CreateDatabaseIfNotExists("Server=.;User Id=sa;Password=ChorusAlan", "cake-documentdb");
+
+        Information("Create cake-documentdb-two");
+        CreateDatabaseIfNotExists("Server=.;User Id=sa;Password=ChorusAlan", "cake-documentdb-two");
+    });
+
+
 Task("Default")
+    .IsDependentOn("Execute-Sql")
     .Does(() =>
     {
         var hydrations = GetFiles("./Cake.DocumentDb.IntegrationTests.Hydration/bin/Debug/Cake.DocumentDb.IntegrationTests.Hydration.dll");
