@@ -22,17 +22,17 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                 });
                 m.Map((log, item, data) =>
                 {
-                    log.Write(Verbosity.Normal, LogLevel.Information, $"Trying to find record with id: {item.id.ToString()}");
+                    log.Write(Verbosity.Normal, LogLevel.Information, $"Trying to find record with id: {item["id"].ToString()}");
 
-                    var record = data["DocumentMigrationTwo"].SingleOrDefault(r => r.id.ToString() == item.id.ToString());
+                    var record = data["DocumentMigrationTwo"].SingleOrDefault(r => r["id"].ToString() == item["id"].ToString());
 
                     if (record == null)
                         return;
 
-                    log.Write(Verbosity.Normal, LogLevel.Information, $"Found record with id: {item.id.ToString()}");
+                    log.Write(Verbosity.Normal, LogLevel.Information, $"Found record with id: {item["id"].ToString()}");
 
-                    item.mobile = record.mobile;
-                    item.address = record.address;
+                    item["mobile"] = record["mobile"];
+                    item["address"] = record["address"];
                 });
             });
         }

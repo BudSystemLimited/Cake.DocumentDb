@@ -10,6 +10,7 @@ using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 using Dapper;
+using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Operations
 {
@@ -58,7 +59,7 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    IList<dynamic> documents;
+                    IList<JObject> documents;
 
                     if (task.Filter == null)
                     {
@@ -229,14 +230,14 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    var data = new Dictionary<string, IList<dynamic>>();
+                    var data = new Dictionary<string, IList<JObject>>();
 
                     foreach (var documentStatement in task.DocumentStatements)
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             $"Executing Document Query Using Source {documentStatement.DatabaseName} and Collection {documentStatement.CollectionName}");
 
-                        IList<dynamic> results;
+                        IList<JObject> results;
 
                         if (documentStatement.Filter == null)
                         {

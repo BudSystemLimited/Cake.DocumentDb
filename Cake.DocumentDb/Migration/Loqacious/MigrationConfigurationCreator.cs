@@ -1,5 +1,6 @@
 ﻿using System;
 using Cake.Core.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Migration.Loqacious
 {
@@ -9,8 +10,8 @@ namespace Cake.DocumentDb.Migration.Loqacious
         private string databaseName;
         private string collectionName;
         private string partitionKey;
-        private Action<ICakeLog, dynamic> map;
-        private Func<dynamic, bool> filter;
+        private Action<ICakeLog, JObject> map;
+        private Func<JObject, bool> filter;
 
         public void Description(string setDescription)
         {
@@ -32,12 +33,12 @@ namespace Cake.DocumentDb.Migration.Loqacious
             partitionKey = setPartitionKey;
         }
 
-        public void Map(Action<ICakeLog, dynamic> setMap)
+        public void Map(Action<ICakeLog, JObject> setMap)
         {
             map = setMap;
         }
 
-        public void Filter(Func<dynamic, bool> setFilter)
+        public void Filter(Func<JObject, bool> setFilter)
         {
             filter = setFilter;
         }

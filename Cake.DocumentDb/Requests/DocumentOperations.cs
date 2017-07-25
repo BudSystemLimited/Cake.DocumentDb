@@ -10,6 +10,7 @@ using Cake.DocumentDb.Migration;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
+using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Requests
 {
@@ -66,7 +67,7 @@ namespace Cake.DocumentDb.Requests
                 versionInfo);
         }
 
-        public IList<dynamic> GetDocuments(
+        public IList<JObject> GetDocuments(
             string database,
             string collection,
             string partitionKeyPath = null,
@@ -83,15 +84,15 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.CreateDocumentQuery<dynamic>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
                 .AsEnumerable()
                 .ToList();
         }
 
-        public IList<dynamic> GetDocuments(
+        public IList<JObject> GetDocuments(
             string database,
             string collection,
-            Func<dynamic, bool> filter,
+            Func<JObject, bool> filter,
             string partitionKeyPath = null,
             int? throughput = null)
         {
@@ -106,7 +107,7 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.CreateDocumentQuery<dynamic>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
                 .Where(filter)
                 .AsEnumerable()
                 .ToList();
@@ -155,11 +156,13 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.UpsertDocumentAsync(
+            var result = client.UpsertDocumentAsync(
                 collectionResource.SelfLink,
                 document,
                 requestOptions,
                 true).Result;
+
+            return result;
         }
 
         public void DeleteDocuments(

@@ -16,12 +16,12 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                 m.PartitionKey("/mypartitionKey");
                 m.Map((log, item) =>
                 {
-                    item.myNewStringPropertyWithFilter = "my new value";
-                    item.myNewIntPropertyWithFilter = 1;
-                    item.myNewBoolPropertyWithFilter = true;
-                    item.myNewGuidPropertyWithFilter = Guid.NewGuid();
+                    item["myNewStringPropertyWithFilter"] = "my new value";
+                    item["myNewIntPropertyWithFilter"] = 1;
+                    item["myNewBoolPropertyWithFilter"] = true;
+                    item["myNewGuidPropertyWithFilter"] = Guid.NewGuid();
                 });
-                m.Filter(doc => doc.mypartitionKey == "1");
+                m.Filter(doc => doc["mypartitionKey"].ToString() == "1");
             });
         }
     }

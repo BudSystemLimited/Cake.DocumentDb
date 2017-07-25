@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using Cake.DocumentDb.Attributes;
 using Cake.DocumentDb.Hydration;
 using Cake.DocumentDb.Migration;
