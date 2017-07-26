@@ -28,10 +28,20 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
             var migrations = InstanceProvider.GetInstances<Migration.Migration>(assembly, settings.Profile);
+            foreach (var migration in migrations)
+            {
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                migration.Attribute = migrationAttribute;
+            }
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedMigrations = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var groupedMigrations = migrations.OrderBy(m => m.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
 
             foreach (var groupedMigration in groupedMigrations)
             {
@@ -40,20 +50,16 @@ namespace Cake.DocumentDb.Operations
                         key[0],
                         key[1]);
 
+
                 foreach (var migration in groupedMigration)
                 {
                     var task = migration.Task;
 
                     context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
 
-                    var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                    if (migrationAttribute == null)
-                        throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
-
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == migration.GetType().Name &&
-                        pm.Timestamp == migrationAttribute.Timestamp))
+                        pm.Timestamp == migration.Attribute.Timestamp))
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information, "Migration: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
                         continue;
@@ -89,7 +95,7 @@ namespace Cake.DocumentDb.Operations
                     {
                         Name = migration.GetType().Name,
                         Description = task.Description,
-                        Timestamp = migrationAttribute.Timestamp,
+                        Timestamp = migration.Attribute.Timestamp,
                         AppliedOn = DateTime.UtcNow
                     });
                 }
@@ -104,13 +110,23 @@ namespace Cake.DocumentDb.Operations
 
         private static void RunSqlMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Sql Migrations");
 
             var migrations = InstanceProvider.GetInstances<SqlMigration>(assembly, settings.Profile);
+            foreach (var migration in migrations)
+            {
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                migration.Attribute = migrationAttribute;
+            }
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedMigrations = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var groupedMigrations = migrations.OrderBy(m => m.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
 
             foreach (var groupedMigration in groupedMigrations)
             {
@@ -127,15 +143,9 @@ namespace Cake.DocumentDb.Operations
                         "Running Migration: " + task.Description + " On Collection: " + task.CollectionName +
                         " On Database: " + task.DatabaseName);
 
-                    var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                    if (migrationAttribute == null)
-                        throw new InvalidOperationException(
-                            $"Migration {migration.GetType().Name} must have a migration attribute");
-
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == migration.GetType().Name &&
-                        pm.Timestamp == migrationAttribute.Timestamp))
+                        pm.Timestamp == migration.Attribute.Timestamp))
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             "Migration: " + task.Description + " On Collection: " + task.CollectionName +
@@ -176,7 +186,7 @@ namespace Cake.DocumentDb.Operations
                     {
                         Name = migration.GetType().Name,
                         Description = task.Description,
-                        Timestamp = migrationAttribute.Timestamp,
+                        Timestamp = migration.Attribute.Timestamp,
                         AppliedOn = DateTime.UtcNow
                     });
                 }
@@ -186,18 +196,28 @@ namespace Cake.DocumentDb.Operations
                         versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Migrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Sql Migrations");
         }
 
         private static void RunDocumentMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
 
             var migrations = InstanceProvider.GetInstances<DocumentMigration>(assembly, settings.Profile);
+            foreach (var migration in migrations)
+            {
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                migration.Attribute = migrationAttribute;
+            }
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedMigrations = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var groupedMigrations = migrations.OrderBy(m => m.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
 
             foreach (var groupedMigration in groupedMigrations)
             {
@@ -206,7 +226,7 @@ namespace Cake.DocumentDb.Operations
                     key[0],
                     key[1]);
 
-                foreach (var migration in migrations)
+                foreach (var migration in groupedMigration)
                 {
                     var task = migration.Task;
 
@@ -214,15 +234,10 @@ namespace Cake.DocumentDb.Operations
                         "Running Migration: " + task.Description + " On Collection: " + task.CollectionName +
                         " On Database: " + task.DatabaseName);
 
-                    var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                    if (migrationAttribute == null)
-                        throw new InvalidOperationException(
-                            $"Migration {migration.GetType().Name} must have a migration attribute");
 
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == migration.GetType().Name &&
-                        pm.Timestamp == migrationAttribute.Timestamp))
+                        pm.Timestamp == migration.Attribute.Timestamp))
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             "Migration: " + task.Description + " On Collection: " + task.CollectionName +
@@ -274,7 +289,7 @@ namespace Cake.DocumentDb.Operations
                     {
                         Name = migration.GetType().Name,
                         Description = task.Description,
-                        Timestamp = migrationAttribute.Timestamp,
+                        Timestamp = migration.Attribute.Timestamp,
                         AppliedOn = DateTime.UtcNow
                     });
                 }
@@ -284,7 +299,7 @@ namespace Cake.DocumentDb.Operations
                         versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Migrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Document Migrations");
         }
 
         private static string GetConnection(string source, IEnumerable<SqlDatabaseConnectionSettings> settings)

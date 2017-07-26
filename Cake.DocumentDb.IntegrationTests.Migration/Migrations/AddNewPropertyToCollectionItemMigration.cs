@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Cake.DocumentDb.Attributes;
 using Newtonsoft.Json.Linq;
 

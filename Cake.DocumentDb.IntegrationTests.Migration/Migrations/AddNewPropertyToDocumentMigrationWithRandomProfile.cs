@@ -3,7 +3,7 @@
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("random")]
-    [Migration(201706121107)]
+    [Migration(201706121109)]
     public class AddNewPropertyToDocumentMigrationWithRandomProfile : DocumentDb.Migration.Migration
     {
         public AddNewPropertyToDocumentMigrationWithRandomProfile()

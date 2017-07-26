@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -27,10 +26,20 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
 
             var hydrations = InstanceProvider.GetInstances<SqlHydration>(assembly, settings.Profile);
+            foreach (var hydration in hydrations)
+            {
+                var migrationAttribute = hydration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Hydration {hydration.GetType().Name} must have a migration attribute");
+
+                hydration.Attribute = migrationAttribute;
+            }
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedHydrations = hydrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
 
             foreach (var groupedHydration in groupedHydrations)
             {
@@ -47,15 +56,10 @@ namespace Cake.DocumentDb.Operations
                         "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
                         " On Database: " + task.DatabaseName);
 
-                    var migrationAttribute = hydration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                    if (migrationAttribute == null)
-                        throw new InvalidOperationException(
-                            $"Hydration {hydration.GetType().Name} must have a migration attribute");
 
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == hydration.GetType().Name &&
-                        pm.Timestamp == migrationAttribute.Timestamp))
+                        pm.Timestamp == hydration.Attribute.Timestamp))
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
@@ -103,7 +107,7 @@ namespace Cake.DocumentDb.Operations
                     {
                         Name = hydration.GetType().Name,
                         Description = task.Description,
-                        Timestamp = migrationAttribute.Timestamp,
+                        Timestamp = hydration.Attribute.Timestamp,
                         AppliedOn = DateTime.UtcNow
                     });
                 }
