@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -14,13 +15,25 @@ namespace Cake.DocumentDb.Operations
     {
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
+            Debugger.Launch();
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Deletions");
 
-            var migrations = InstanceProvider.GetInstances<Deletion.DeleteDocuments>(assembly, settings.Profile);
+            var deletions = InstanceProvider.GetInstances<Deletion.DeleteDocuments>(assembly, settings.Profile);
+            foreach (var migration in deletions)
+            {
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                migration.Attribute = migrationAttribute;
+            }
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedDeletions = migrations.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var attributedDeletions = deletions.Where(d => d.Attribute != null).OrderBy(d => d.Attribute.Timestamp).ToList();
+            var runAlwaysDeletions = deletions.Where(d => d.Attribute == null).ToList();
+
+            var orderedDeletions = attributedDeletions.Concat(runAlwaysDeletions).ToList();
+            
+            var groupedDeletions = orderedDeletions.GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
 
             foreach (var groupedDeletion in groupedDeletions)
             {
@@ -35,12 +48,10 @@ namespace Cake.DocumentDb.Operations
 
                     context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Deletion: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName);
 
-                    var migrationAttribute = deletion.GetType().GetCustomAttribute<MigrationAttribute>();
-
-                    if (migrationAttribute != null &&
+                    if (deletion.Attribute != null &&
                         versionInfo.ProcessedMigrations.Any(pm =>
                             pm.Name == deletion.GetType().Name &&
-                            pm.Timestamp == migrationAttribute.Timestamp))
+                            pm.Timestamp == deletion.Attribute.Timestamp))
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information, "Deletion: " + task.Description + " On Collection: " + task.CollectionName + " On Database: " + task.DatabaseName + " Has Already Been Executed");
                         continue;
@@ -53,13 +64,13 @@ namespace Cake.DocumentDb.Operations
                         task.PartitionKey,
                         task.PartitionKeyAccessor);
 
-                    if (migrationAttribute != null)
+                    if (deletion.Attribute != null)
                     {
                         versionInfo.ProcessedMigrations.Add(new MigrationInfo
                         {
                             Name = deletion.GetType().Name,
                             Description = task.Description,
-                            Timestamp = migrationAttribute.Timestamp,
+                            Timestamp = deletion.Attribute.Timestamp,
                             AppliedOn = DateTime.UtcNow
                         });
                     }

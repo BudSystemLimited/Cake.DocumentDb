@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("random")]
-    [Migration(201706121140)]
+    [Migration(201706121142)]
     public class AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate : SqlMigration
     {
         public AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate()

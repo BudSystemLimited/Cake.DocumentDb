@@ -3,7 +3,7 @@
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("local")]
-    [Migration(201706121107)]
+    [Migration(201706121108)]
     public class AddNewPropertyToDocumentMigrationWithLocalProfile : DocumentDb.Migration.Migration
     {
         public AddNewPropertyToDocumentMigrationWithLocalProfile()

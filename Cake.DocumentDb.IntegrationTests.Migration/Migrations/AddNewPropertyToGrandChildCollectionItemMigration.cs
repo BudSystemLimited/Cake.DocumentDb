@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
-    [Migration(201707241633)]
+    [Migration(201707241634)]
     public class AddNewPropertyToGrandChildCollectionItemMigration : DocumentDb.Migration.Migration
     {
         public AddNewPropertyToGrandChildCollectionItemMigration()

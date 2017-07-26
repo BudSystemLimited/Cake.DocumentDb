@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
     [Profile("local")]
-    [Migration(201706121140)]
+    [Migration(201706121141)]
     public class AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile : SqlMigration
     {
         public AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile()
