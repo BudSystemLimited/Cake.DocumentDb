@@ -15,7 +15,6 @@ namespace Cake.DocumentDb.Operations
     {
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            Debugger.Launch();
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Deletions");
 
             var deletions = InstanceProvider.GetInstances<Deletion.DeleteDocuments>(assembly, settings.Profile);
