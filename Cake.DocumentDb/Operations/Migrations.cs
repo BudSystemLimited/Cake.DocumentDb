@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -135,7 +136,7 @@ namespace Cake.DocumentDb.Operations
                     key[0],
                     key[1]);
 
-                foreach (var migration in migrations)
+                foreach (var migration in groupedMigration)
                 {
                     var task = migration.Task;
 

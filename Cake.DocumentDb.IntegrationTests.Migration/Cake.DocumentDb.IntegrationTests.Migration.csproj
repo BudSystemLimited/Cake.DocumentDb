@@ -54,6 +54,7 @@
     <Compile Include="CreateDocumentMigrationTwoCollection.cs" />
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
+    <Compile Include="CreateTestTwoCollection.cs" />
     <Compile Include="Migrations\AddNewPropertyToGrandChildCollectionItemMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToCollectionItemMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithFilter.cs" />
@@ -62,14 +63,17 @@
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithRandomProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigration.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationToMyCollectionTwo.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seeds\CollectionMigrationAddPropertyToGrandChildSeed.cs" />
     <Compile Include="Seeds\CollectionMigrationPropertyAdditionSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationTwoSeed.cs" />
+    <Compile Include="Seeds\MyCollectionTwoEmbeddedSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationOneSeed.cs" />
+    <Compile Include="Seeds\MyCollectionTwoEmbeddedSeedTwo.cs" />
     <Compile Include="Seeds\EmbeddedSeedTwo.cs" />
   </ItemGroup>
   <ItemGroup>
