@@ -62,6 +62,7 @@
     <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithRandomProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigration.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationToMyCollectionTwo.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile.cs" />
