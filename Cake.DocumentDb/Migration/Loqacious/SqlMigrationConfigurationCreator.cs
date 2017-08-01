@@ -45,7 +45,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
             sqlStatements = setSqlStatements;
         }
 
-        public void Filter(Func<dynamic, bool> setFilter)
+        public void Filter(Func<JObject, bool> setFilter)
         {
             filter = setFilter;
         }
