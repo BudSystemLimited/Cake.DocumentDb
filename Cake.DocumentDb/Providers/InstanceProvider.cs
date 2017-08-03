@@ -11,7 +11,7 @@ namespace Cake.DocumentDb.Providers
         public static IList<TEntity> GetInstances<TEntity>(string assembly, string profile)
             where TEntity : class 
         {
-            return (from t in Assembly.LoadFile(assembly).GetTypes()
+            return (from t in Assembly.LoadFrom(assembly).GetTypes()
                 where 
                     (t.GetInterfaces().Contains(typeof(TEntity)) ||
                     t.IsSubclassOf(typeof(TEntity))) && 
