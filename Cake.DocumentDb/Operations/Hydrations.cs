@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -11,6 +12,7 @@ using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 using Dapper;
+using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Operations
 {
@@ -19,6 +21,7 @@ namespace Cake.DocumentDb.Operations
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             RunSqlHydrations(context, assembly, settings);
+            RunDocumentHydrations(context, assembly, settings);
         }
 
         private static void RunSqlHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
@@ -101,6 +104,120 @@ namespace Cake.DocumentDb.Operations
                                 task.CollectionName,
                                 document);
                         }
+                    }
+
+                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                    {
+                        Name = hydration.GetType().Name,
+                        Description = task.Description,
+                        Timestamp = hydration.Attribute.Timestamp,
+                        AppliedOn = DateTime.UtcNow
+                    });
+                }
+
+                operation.UpsertVersionInfo(
+                        key[0],
+                        versionInfo);
+            }
+
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
+        }
+
+        private static void RunDocumentHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        {
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
+
+            var hydrations = InstanceProvider.GetInstances<DocumentHydration>(assembly, settings.Profile);
+            foreach (var hydration in hydrations)
+            {
+                var migrationAttribute = hydration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Hydration {hydration.GetType().Name} must have a migration attribute");
+
+                hydration.Attribute = migrationAttribute;
+            }
+
+            var operation = new DocumentOperations(settings.Connection, context);
+
+            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+
+            foreach (var groupedHydration in groupedHydrations)
+            {
+                var key = groupedHydration.Key.Split('.');
+                var versionInfo = operation.GetVersionInfo(
+                    key[0],
+                    key[1]);
+
+                foreach (var hydration in hydrations)
+                {
+                    var task = hydration.Task;
+
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                        "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName);
+
+
+                    if (versionInfo.ProcessedMigrations.Any(pm =>
+                        pm.Name == hydration.GetType().Name &&
+                        pm.Timestamp == hydration.Attribute.Timestamp))
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                        continue;
+                    }
+
+                    var data = new Dictionary<string, IList<JObject>>();
+
+                    if (task.AdditionalDocumentStatements != null)
+                    {
+                        foreach (var sqlStatement in task.AdditionalDocumentStatements)
+                        {
+                            context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                                $"Executing Sql Using Source {sqlStatement.DatabaseName} on Collection {sqlStatement.CollectionName}");
+
+                            if (sqlStatement.Filter == null)
+                            {
+                                data.Add(sqlStatement.AccessKey, operation.GetDocuments(
+                                    sqlStatement.DatabaseName,
+                                    sqlStatement.CollectionName).ToList());
+                            }
+                            else
+                            {
+                                data.Add(sqlStatement.AccessKey, operation.GetDocuments(
+                                    sqlStatement.DatabaseName,
+                                    sqlStatement.CollectionName,
+                                    sqlStatement.Filter).ToList());
+                            }
+                        }
+                    }
+
+                    IList<JObject> records;
+
+                    if (task.DocumentStatement.Filter == null)
+                    {
+                        records = operation.GetDocuments(
+                            task.DocumentStatement.DatabaseName,
+                            task.DocumentStatement.CollectionName).ToList();
+                    }
+                    else
+                    {
+                        records = operation.GetDocuments(
+                            task.DocumentStatement.DatabaseName,
+                            task.DocumentStatement.CollectionName,
+                            task.DocumentStatement.Filter).ToList();
+                    }
+
+                    foreach (var record in records)
+                    {
+                        var document = task.DocumentCreator(context.Log, record, data);
+
+                        operation.CreateDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
                     }
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo

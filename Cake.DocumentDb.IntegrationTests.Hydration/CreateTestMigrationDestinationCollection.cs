@@ -2,10 +2,10 @@
 
 namespace Cake.DocumentDb.IntegrationTests.Hydration
 {
-    public class CreateTestCollection : ICreateDocumentDatabaseCollection
+    public class CreateTestMigrationDestinationCollection : ICreateDocumentDatabaseCollection
     {
         public string DatabaseName => "cakeddbhydrationtest";
-        public string CollectionName => "MyCollection";
+        public string CollectionName => "MyDocumentCollection";
         public string PartitionKey => "/mypartitionKey";
         public int? Throughput => 400;
     }
