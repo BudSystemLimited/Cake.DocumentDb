@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
@@ -22,6 +21,7 @@ namespace Cake.DocumentDb.Operations
         {
             RunSqlHydrations(context, assembly, settings);
             RunDocumentHydrations(context, assembly, settings);
+            RunDataHydrations(context, assembly, settings);
         }
 
         private static void RunSqlHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
@@ -51,14 +51,13 @@ namespace Cake.DocumentDb.Operations
                     key[0],
                     key[1]);
 
-                foreach (var hydration in hydrations)
+                foreach (var hydration in groupedHydration)
                 {
                     var task = hydration.Task;
 
                     context.Log.Write(Verbosity.Normal, LogLevel.Information,
                         "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
                         " On Database: " + task.DatabaseName);
-
 
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == hydration.GetType().Name &&
@@ -150,14 +149,13 @@ namespace Cake.DocumentDb.Operations
                     key[0],
                     key[1]);
 
-                foreach (var hydration in hydrations)
+                foreach (var hydration in groupedHydration)
                 {
                     var task = hydration.Task;
 
                     context.Log.Write(Verbosity.Normal, LogLevel.Information,
                         "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
                         " On Database: " + task.DatabaseName);
-
 
                     if (versionInfo.ProcessedMigrations.Any(pm =>
                         pm.Name == hydration.GetType().Name &&
@@ -232,6 +230,80 @@ namespace Cake.DocumentDb.Operations
                 operation.UpsertVersionInfo(
                         key[0],
                         versionInfo);
+            }
+
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
+        }
+
+        private static void RunDataHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        {
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
+
+            var hydrations = InstanceProvider.GetInstances<DataHydration>(assembly, settings.Profile);
+            foreach (var hydration in hydrations)
+            {
+                var migrationAttribute = hydration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Hydration {hydration.GetType().Name} must have a migration attribute");
+
+                hydration.Attribute = migrationAttribute;
+            }
+
+            var operation = new DocumentOperations(settings.Connection, context);
+
+            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
+                .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+
+            foreach (var groupedHydration in groupedHydrations)
+            {
+                var key = groupedHydration.Key.Split('.');
+                var versionInfo = operation.GetVersionInfo(
+                    key[0],
+                    key[1]);
+
+                foreach (var hydration in groupedHydration)
+                {
+                    var task = hydration.Task;
+
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                        "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName);
+
+                    if (versionInfo.ProcessedMigrations.Any(pm =>
+                        pm.Name == hydration.GetType().Name &&
+                        pm.Timestamp == hydration.Attribute.Timestamp))
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                        continue;
+                    }
+
+                    var data = task.DataProvider(settings);
+
+                    foreach (var record in data)
+                    {
+                        var document = task.DocumentCreator(context.Log, record);
+
+                        operation.CreateDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+
+                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                    {
+                        Name = hydration.GetType().Name,
+                        Description = task.Description,
+                        Timestamp = hydration.Attribute.Timestamp,
+                        AppliedOn = DateTime.UtcNow
+                    });
+                }
+
+                operation.UpsertVersionInfo(
+                    key[0],
+                    versionInfo);
             }
 
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");

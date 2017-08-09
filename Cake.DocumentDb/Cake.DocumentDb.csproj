@@ -77,6 +77,9 @@
     <Compile Include="Deletion\Loqacious\DeletionTask.cs" />
     <Compile Include="Deletion\DeleteDocuments.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
+    <Compile Include="Hydration\DataHydration.cs" />
+    <Compile Include="Hydration\Loqacious\DataHydrationConfigurationCreator.cs" />
+    <Compile Include="Hydration\Loqacious\DataHydrationTask.cs" />
     <Compile Include="Hydration\Loqacious\DocumentHydrationConfigurationCreator.cs" />
     <Compile Include="Hydration\Loqacious\SqlHydrationConfigurationCreator.cs" />
     <Compile Include="Hydration\Loqacious\DocumentHydrationTask.cs" />
@@ -114,6 +117,7 @@
     <Compile Include="Requests\DocumentOperations.cs" />
     <Compile Include="DocumentDbMigrationSettings.cs" />
     <Compile Include="SqlDatabaseConnectionSettings.cs" />
+    <Compile Include="StorageConnectionSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
