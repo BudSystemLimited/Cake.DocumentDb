@@ -48,10 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateTestArbitraryDataCollection.cs" />
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
     <Compile Include="CreateTestMigrationDestinationCollection.cs" />
     <Compile Include="CreateTestMigrationSourceCollection.cs" />
+    <Compile Include="Hydrations\PopulateFromArbitraryData.cs" />
     <Compile Include="Hydrations\PopulateFromDocumentDb.cs" />
     <Compile Include="Hydrations\PopulateFromSqlWithMultipleDatabases.cs" />
     <Compile Include="Hydrations\PopulateFromSql.cs" />
