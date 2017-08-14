@@ -280,7 +280,7 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    var data = task.DataProvider(settings);
+                    var data = task.DataProvider(context.Log, settings);
 
                     foreach (var record in data)
                     {

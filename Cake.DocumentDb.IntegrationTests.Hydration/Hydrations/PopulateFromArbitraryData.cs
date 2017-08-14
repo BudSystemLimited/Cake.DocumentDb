@@ -16,7 +16,7 @@ namespace Cake.DocumentDb.IntegrationTests.Hydration.Hydrations
                 m.DatabaseName("cakeddbhydrationtest");
                 m.CollectionName("MyDataCollection");
                 m.PartitionKey("/mypartitionkey");
-                m.DataProvider(settings => new List<dynamic>
+                m.DataProvider((log, settings) => new List<dynamic>
                 {
                     new
                     {
