@@ -11,7 +11,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
         private string collectionName;
         private string partitionKey;
         private Func<ICakeLog, dynamic, object> documentCreator;
-        private Func<DocumentDbMigrationSettings, IList<dynamic>> dataProvider;
+        private Func<ICakeLog, DocumentDbMigrationSettings, IList<dynamic>> dataProvider;
 
         public void Description(string setDescription)
         {
@@ -38,7 +38,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             documentCreator = setDocumentCreator;
         }
 
-        public void DataProvider(Func<DocumentDbMigrationSettings, IList<dynamic>> setDataProvider)
+        public void DataProvider(Func<ICakeLog, DocumentDbMigrationSettings, IList<dynamic>> setDataProvider)
         {
             dataProvider = setDataProvider;
         }

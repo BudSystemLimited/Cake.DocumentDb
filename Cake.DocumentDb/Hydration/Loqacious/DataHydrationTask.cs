@@ -11,7 +11,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
         public string CollectionName { get; }
         public string PartitionKey { get; }
         public Func<ICakeLog, dynamic, object> DocumentCreator { get; }
-        public Func<DocumentDbMigrationSettings, IList<dynamic>> DataProvider { get; }
+        public Func<ICakeLog, DocumentDbMigrationSettings, IList<dynamic>> DataProvider { get; }
 
         public DataHydrationTask(
             string description,
@@ -19,7 +19,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             string collectionName,
             string partitionKey,
             Func<ICakeLog, dynamic, object> documentCreator,
-            Func<DocumentDbMigrationSettings, IList<dynamic>> dataProvider)
+            Func<ICakeLog, DocumentDbMigrationSettings, IList<dynamic>> dataProvider)
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Cannot be null or empty", nameof(description));
