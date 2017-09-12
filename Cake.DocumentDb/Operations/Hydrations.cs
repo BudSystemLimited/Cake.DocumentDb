@@ -210,12 +210,21 @@ namespace Cake.DocumentDb.Operations
 
                     foreach (var record in records)
                     {
-                        var document = task.DocumentCreator(context.Log, record, data);
+                        var documents = new List<JObject>();
 
-                        operation.CreateDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
+                        if (task.DocumentCreator != null)
+                            documents.Add(task.DocumentCreator(context.Log, record, data));
+
+                        if (task.DocumentsCreator != null)
+                            documents.AddRange(task.DocumentsCreator(context.Log, record, data));
+
+                        foreach (var document in documents)
+                        {
+                            operation.CreateDocument(
+                                task.DatabaseName,
+                                task.CollectionName,
+                                document);
+                        }
                     }
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo

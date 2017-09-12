@@ -13,6 +13,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
         private string collectionName;
         private string partitionKey;
         private Func<ICakeLog, JObject, IDictionary<string, IList<JObject>>, JObject> documentCreator;
+        private Func<ICakeLog, JObject, IDictionary<string, IList<JObject>>, IReadOnlyCollection<JObject>> documentsCreator;
         private DocumentStatement documentStatement;
         private DocumentStatement[] additionalDocumentStatements;
 
@@ -41,6 +42,11 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             documentCreator = setDocumentCreator;
         }
 
+        public void DocumentsCreator(Func<ICakeLog, JObject, IDictionary<string, IList<JObject>>, IReadOnlyCollection<JObject>> setDocumentsCreator)
+        {
+            documentsCreator = setDocumentsCreator;
+        }
+
         public void DocumentStatement(DocumentStatement setSqlStatement)
         {
             documentStatement = setSqlStatement;
@@ -57,6 +63,7 @@ namespace Cake.DocumentDb.Hydration.Loqacious
             collectionName,
             partitionKey,
             documentCreator,
+            documentsCreator,
             documentStatement,
             additionalDocumentStatements);
     }
