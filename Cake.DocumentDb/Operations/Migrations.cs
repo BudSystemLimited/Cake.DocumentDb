@@ -22,6 +22,7 @@ namespace Cake.DocumentDb.Operations
             RunMigrations(context, assembly, settings);
             RunSqlMigrations(context, assembly, settings);
             RunDocumentMigrations(context, assembly, settings);
+            RunDataMigrations(context, assembly, settings);
         }
 
         private static void RunMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
@@ -283,6 +284,85 @@ namespace Cake.DocumentDb.Operations
 
                         data[documentStatement.AccessKey] = results;
                     }
+
+                    var documents = operation.GetDocuments(
+                        task.DatabaseName,
+                        task.CollectionName);
+
+                    foreach (var document in documents)
+                    {
+                        task.Map(context.Log, document, data);
+
+                        operation.UpsertDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+
+                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                    {
+                        Name = migration.GetType().Name,
+                        Description = task.Description,
+                        Timestamp = migration.Attribute.Timestamp,
+                        AppliedOn = DateTime.UtcNow
+                    });
+                }
+
+                operation.UpsertVersionInfo(
+                        key[0],
+                        versionInfo);
+            }
+
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Document Migrations");
+        }
+
+        private static void RunDataMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        {
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
+
+            var migrations = InstanceProvider.GetInstances<DataMigration>(assembly, settings.Profile);
+            foreach (var migration in migrations)
+            {
+                var migrationAttribute = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+                if (migrationAttribute == null)
+                    throw new InvalidOperationException($"Migration {migration.GetType().Name} must have a migration attribute");
+
+                migration.Attribute = migrationAttribute;
+            }
+
+            var operation = new DocumentOperations(settings.Connection, context);
+
+            var groupedMigrations = migrations.OrderBy(m => m.Attribute.Timestamp)
+                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+
+            foreach (var groupedMigration in groupedMigrations)
+            {
+                var key = groupedMigration.Key.Split('.');
+                var versionInfo = operation.GetVersionInfo(
+                    key[0],
+                    key[1]);
+
+                foreach (var migration in groupedMigration)
+                {
+                    var task = migration.Task;
+
+                    context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                        "Running Migration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName);
+
+
+                    if (versionInfo.ProcessedMigrations.Any(pm =>
+                        pm.Name == migration.GetType().Name &&
+                        pm.Timestamp == migration.Attribute.Timestamp))
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            "Migration: " + task.Description + " On Collection: " + task.CollectionName +
+                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                        continue;
+                    }
+
+                    var data = task.DataProvider(context.Log, settings);
 
                     var documents = operation.GetDocuments(
                         task.DatabaseName,

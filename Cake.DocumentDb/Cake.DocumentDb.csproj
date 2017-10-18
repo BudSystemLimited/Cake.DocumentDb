@@ -86,7 +86,10 @@
     <Compile Include="Hydration\Loqacious\SqlHydrationTask.cs" />
     <Compile Include="Hydration\DocumentHydration.cs" />
     <Compile Include="Hydration\SqlHydration.cs" />
+    <Compile Include="Migration\DataMigration.cs" />
     <Compile Include="Migration\DocumentStatement.cs" />
+    <Compile Include="Migration\Loqacious\DataMigrationConfigurationCreator.cs" />
+    <Compile Include="Migration\Loqacious\DataMigrationTask.cs" />
     <Compile Include="Migration\Loqacious\DocumentMigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\SqlMigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\DocumentMigrationTask.cs" />

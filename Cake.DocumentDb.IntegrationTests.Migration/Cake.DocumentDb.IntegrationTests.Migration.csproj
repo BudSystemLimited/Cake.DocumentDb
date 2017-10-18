@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CreateCollectionMigrationAddPropertyToGrandChildCollection.cs" />
     <Compile Include="CreateCollectionMigrationPropertyAdditionCollection.cs" />
+    <Compile Include="CreateDataMigrationCollection.cs" />
     <Compile Include="CreateDocumentMigrationOneCollection.cs" />
     <Compile Include="CreateDocumentMigrationTwoCollection.cs" />
     <Compile Include="CreateTestCollection.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithRandomProfile.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromDataProviderMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigration.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seeds\CollectionMigrationAddPropertyToGrandChildSeed.cs" />
     <Compile Include="Seeds\CollectionMigrationPropertyAdditionSeed.cs" />
+    <Compile Include="Seeds\DataMigrationSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationTwoSeed.cs" />
     <Compile Include="Seeds\MyCollectionTwoEmbeddedSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
@@ -93,6 +96,7 @@
     <EmbeddedResource Include="Seeds\documentmigrationtwo.json" />
     <EmbeddedResource Include="Seeds\collectionmigrationpropertyaddition.json" />
     <EmbeddedResource Include="Seeds\collectionmigrationaddpropertytograndchild.json" />
+    <EmbeddedResource Include="Seeds\datamigration.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
