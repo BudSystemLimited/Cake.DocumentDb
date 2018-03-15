@@ -19,8 +19,6 @@ The build script to execute.
 The build script target to run.
 .PARAMETER Migration
 The service migrations to run.
-.PARAMETER Experimental
-Tells Cake to use the latest Roslyn release.
 .PARAMETER WhatIf
 Performs a dry run of the build script.
 No tasks will be executed.
@@ -40,7 +38,6 @@ http://cakebuild.net
 Param(
     [string]$Script = "hydration.cake",
     [string]$Target = "Default",
-    [switch]$Experimental,
     [Alias("DryRun","Noop")]
     [switch]$WhatIf,
     [switch]$Mono,
@@ -92,13 +89,6 @@ $UseMono = "";
 if($Mono.IsPresent) {
     Write-Verbose -Message "Using the Mono based scripting engine."
     $UseMono = "-mono"
-}
-
-# Should we use the new Roslyn?
-$UseExperimental = "";
-if($Experimental.IsPresent -and !($Mono.IsPresent)) {
-    Write-Verbose -Message "Using experimental version of Roslyn."
-    $UseExperimental = "-experimental"
 }
 
 # Is this a dry run?
@@ -177,7 +167,7 @@ if (!(Test-Path $CAKE_EXE)) {
     Throw "Could not find Cake.exe at $CAKE_EXE"
 }
 
-# Start Cake - we use the experimental flag to support functionality such as string interpolation
+# Start Cake.
 Write-Host "Running build script..."
-Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" -target=`"$Target`" $UseMono $UseDryRun -experimental $ScriptArgs"
+Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" -target=`"$Target`" $UseMono $UseDryRun $ScriptArgs"
 exit $LASTEXITCODE
