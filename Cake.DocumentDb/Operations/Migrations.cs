@@ -67,20 +67,7 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    var documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            task.Filter);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    operation.PerformTask(task, doc => task.Map(context.Log, doc));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -158,21 +145,8 @@ namespace Cake.DocumentDb.Operations
                             data.Add(sqlStatement.StatementLookupKey ?? sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
                         }
                     }
-
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName,
-                        task.Filter);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    
+                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -252,19 +226,7 @@ namespace Cake.DocumentDb.Operations
                         data[documentStatement.AccessKey] = results;
                     }
 
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -331,19 +293,7 @@ namespace Cake.DocumentDb.Operations
 
                     var data = task.DataProvider(context.Log, settings);
 
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {

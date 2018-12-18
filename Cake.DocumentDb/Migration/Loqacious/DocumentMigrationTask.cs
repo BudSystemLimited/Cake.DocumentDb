@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Migration.Loqacious
 {
-    internal class DocumentMigrationTask
+    internal class DocumentMigrationTask : IMigrationTask
     {
         public string Description { get; }
         public string DatabaseName { get; }

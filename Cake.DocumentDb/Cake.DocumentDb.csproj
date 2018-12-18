@@ -91,6 +91,7 @@
     <Compile Include="Migration\Loqacious\DataMigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\DataMigrationTask.cs" />
     <Compile Include="Migration\Loqacious\DocumentMigrationConfigurationCreator.cs" />
+    <Compile Include="Migration\Loqacious\IMigrationTask.cs" />
     <Compile Include="Migration\Loqacious\SqlMigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\DocumentMigrationTask.cs" />
     <Compile Include="Migration\Loqacious\SqlMigrationTask.cs" />

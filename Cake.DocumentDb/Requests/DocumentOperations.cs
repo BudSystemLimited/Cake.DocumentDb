@@ -7,6 +7,7 @@ using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Factories;
 using Cake.DocumentDb.Migration;
+using Cake.DocumentDb.Migration.Loqacious;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
@@ -185,6 +186,24 @@ namespace Cake.DocumentDb.Requests
                 }
 
                 var result = client.DeleteDocumentAsync(document._self, requestOptions).Result;
+            }
+        }
+
+        internal void PerformTask(IMigrationTask task, Action<JObject> mapAction)
+        {
+            var documents = GetDocuments(
+                task.DatabaseName,
+                task.CollectionName,
+                task.Filter);
+
+            foreach (var document in documents)
+            {
+                mapAction(document);
+
+                UpsertDocument(
+                    task.DatabaseName,
+                    task.CollectionName,
+                    document);
             }
         }
     }
