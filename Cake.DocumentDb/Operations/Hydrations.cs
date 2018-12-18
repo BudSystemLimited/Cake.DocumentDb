@@ -176,37 +176,17 @@ namespace Cake.DocumentDb.Operations
                             context.Log.Write(Verbosity.Normal, LogLevel.Information,
                                 $"Executing Sql Using Source {sqlStatement.DatabaseName} on Collection {sqlStatement.CollectionName}");
 
-                            if (sqlStatement.Filter == null)
-                            {
-                                data.Add(sqlStatement.AccessKey, operation.GetDocuments(
-                                    sqlStatement.DatabaseName,
-                                    sqlStatement.CollectionName).ToList());
-                            }
-                            else
-                            {
-                                data.Add(sqlStatement.AccessKey, operation.GetDocuments(
-                                    sqlStatement.DatabaseName,
-                                    sqlStatement.CollectionName,
-                                    sqlStatement.Filter).ToList());
-                            }
+                            data.Add(sqlStatement.AccessKey, operation.GetDocuments(
+                                sqlStatement.DatabaseName,
+                                sqlStatement.CollectionName,
+                                sqlStatement.Filter).ToList());
                         }
                     }
 
-                    IList<JObject> records;
-
-                    if (task.DocumentStatement.Filter == null)
-                    {
-                        records = operation.GetDocuments(
-                            task.DocumentStatement.DatabaseName,
-                            task.DocumentStatement.CollectionName).ToList();
-                    }
-                    else
-                    {
-                        records = operation.GetDocuments(
-                            task.DocumentStatement.DatabaseName,
-                            task.DocumentStatement.CollectionName,
-                            task.DocumentStatement.Filter).ToList();
-                    }
+                    var records = operation.GetDocuments(
+                        task.DocumentStatement.DatabaseName,
+                        task.DocumentStatement.CollectionName,
+                        task.DocumentStatement.Filter).ToList();
 
                     foreach (var record in records)
                     {
