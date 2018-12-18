@@ -58,7 +58,7 @@ namespace Cake.DocumentDb.Requests
         }
 
         public void UpsertVersionInfo(
-            string database, 
+            string database,
             VersionInfo versionInfo)
         {
             UpsertDocument(
@@ -70,6 +70,7 @@ namespace Cake.DocumentDb.Requests
         public IList<JObject> GetDocuments(
             string database,
             string collection,
+            Func<JObject, bool> filter = null,
             string partitionKeyPath = null,
             int? throughput = null)
         {
@@ -84,31 +85,15 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
-                .AsEnumerable()
-                .ToList();
-        }
-
-        public IList<JObject> GetDocuments(
-            string database,
-            string collection,
-            Func<JObject, bool> filter,
-            string partitionKeyPath = null,
-            int? throughput = null)
-        {
-            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
-                database,
-                collection,
-                partitionKeyPath,
-                throughput);
-
-            var requestOptions = new RequestOptions();
-
-            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
-                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
+            if (filter != null)
+            {
+                return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+                    .Where(filter)
+                    .AsEnumerable()
+                    .ToList();
+            }
 
             return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
-                .Where(filter)
                 .AsEnumerable()
                 .ToList();
         }
@@ -168,7 +153,7 @@ namespace Cake.DocumentDb.Requests
         public void DeleteDocuments(
             string database,
             string collection,
-            Func<dynamic, bool> filter, 
+            Func<dynamic, bool> filter,
             string partitionKeyPath = null,
             Func<dynamic, object> partitionKeyAccessor = null,
             int? throughput = null)

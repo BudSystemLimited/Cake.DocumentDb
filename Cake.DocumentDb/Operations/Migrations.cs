@@ -67,21 +67,10 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    IList<JObject> documents;
-
-                    if (task.Filter == null)
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName);
-                    }
-                    else
-                    {
-                        documents = operation.GetDocuments(
+                    var documents = operation.GetDocuments(
                             task.DatabaseName,
                             task.CollectionName,
                             task.Filter);
-                    }
 
                     foreach (var document in documents)
                     {
@@ -170,21 +159,10 @@ namespace Cake.DocumentDb.Operations
                         }
                     }
 
-                    IList<JObject> documents;
-
-                    if (task.Filter == null)
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName);
-                    }
-                    else
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            task.Filter);
-                    }
+                    var documents = operation.GetDocuments(
+                        task.DatabaseName,
+                        task.CollectionName,
+                        task.Filter);
 
                     foreach (var document in documents)
                     {
@@ -266,21 +244,10 @@ namespace Cake.DocumentDb.Operations
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             $"Executing Document Query Using Source {documentStatement.DatabaseName} and Collection {documentStatement.CollectionName}");
 
-                        IList<JObject> results;
-
-                        if (documentStatement.Filter == null)
-                        {
-                            results = operation.GetDocuments(
-                                documentStatement.DatabaseName,
-                                documentStatement.CollectionName);
-                        }
-                        else
-                        {
-                            results = operation.GetDocuments(
+                        var results = operation.GetDocuments(
                                 documentStatement.DatabaseName,
                                 documentStatement.CollectionName,
                                 documentStatement.Filter);
-                        }
 
                         data[documentStatement.AccessKey] = results;
                     }
