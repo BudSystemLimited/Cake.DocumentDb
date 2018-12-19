@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Cake.Core.Diagnostics;
 using Newtonsoft.Json.Linq;
 
@@ -13,7 +14,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
         public string PartitionKey { get; }
         public Action<ICakeLog, JObject, IDictionary<string, IList<dynamic>>> Map { get; }
         public SqlStatement[] SqlStatements { get; }
-        public Func<JObject, bool> Filter { get; }
+        public Expression<Func<JObject, bool>> Filter { get; }
 
         public SqlMigrationTask(
             string description,
@@ -22,7 +23,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
             string partitionKey,
             Action<ICakeLog, JObject, IDictionary<string, IList<dynamic>>> map,
             SqlStatement[] sqlStatements,
-            Func<JObject, bool> filter)
+            Expression<Func<JObject, bool>> filter)
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Cannot be null or empty", nameof(description));

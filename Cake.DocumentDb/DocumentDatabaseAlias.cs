@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Annotations;
 using Cake.DocumentDb.Operations;
@@ -22,7 +23,12 @@ namespace Cake.DocumentDb
             CollectionCreations.Run(context, assembly, settings);
             Seeds.Run(context, assembly, settings);
             Hydrations.Run(context, assembly, settings);
-            Migrations.Run(context, assembly, settings);
+
+            var task = Task.Run(async () => { await Migrations.Run(context, assembly, settings); });
+            task.Wait();
+
+            //Migrations.Run(context, assembly, settings);
+
             Deletions.Run(context, assembly, settings);
         }
     }

@@ -11,6 +11,7 @@ using Cake.DocumentDb.Migration.Loqacious;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
+using Microsoft.Azure.Documents.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Requests
@@ -189,21 +190,35 @@ namespace Cake.DocumentDb.Requests
             }
         }
 
-        internal void PerformTask(IMigrationTask task, Action<JObject> mapAction)
+        internal async Task PerformTask(IMigrationTask task, Action<JObject> mapAction)
         {
-            var documents = GetDocuments(
+            //Debugger.Launch();
+            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
                 task.DatabaseName,
-                task.CollectionName,
-                task.Filter);
+                task.CollectionName);
 
-            foreach (var document in documents)
+            var queryable = client.CreateDocumentQuery(collectionResource.SelfLink,
+                new FeedOptions {EnableCrossPartitionQuery = true});
+
+            if (task.Filter != null)
             {
-                mapAction(document);
+                queryable = queryable.Where(task.Filter);
+            }
 
-                UpsertDocument(
-                    task.DatabaseName,
-                    task.CollectionName,
-                    document);
+            var documentQuery = queryable.AsDocumentQuery();
+            while (documentQuery.HasMoreResults)
+            {
+                var documents = await documentQuery.ExecuteNextAsync<JObject>();
+
+                foreach (var document in documents)
+                {
+                    mapAction(document);
+
+                    UpsertDocument(
+                        task.DatabaseName,
+                        task.CollectionName,
+                        document);
+                }
             }
         }
     }

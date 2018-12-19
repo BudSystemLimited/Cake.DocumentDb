@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
@@ -17,15 +18,23 @@ namespace Cake.DocumentDb.Operations
 {
     public class Migrations
     {
-        public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        public static async Task Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            RunMigrations(context, assembly, settings);
-            RunSqlMigrations(context, assembly, settings);
-            RunDocumentMigrations(context, assembly, settings);
-            RunDataMigrations(context, assembly, settings);
+            try
+            {
+                await RunMigrations(context, assembly, settings);
+                await RunSqlMigrations(context, assembly, settings);
+                await RunDocumentMigrations(context, assembly, settings);
+                await RunDataMigrations(context, assembly, settings);
+            }
+            catch (Exception ex)
+            {
+                context.Log.Error(ex.Message, ex);
+                context.Log.Error(ex.StackTrace, ex);
+            }
         }
 
-        private static void RunMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
@@ -67,7 +76,7 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    operation.PerformTask(task, doc => task.Map(context.Log, doc));
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -86,7 +95,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
         }
 
-        private static void RunSqlMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunSqlMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Sql Migrations");
 
@@ -145,8 +154,8 @@ namespace Cake.DocumentDb.Operations
                             data.Add(sqlStatement.StatementLookupKey ?? sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
                         }
                     }
-                    
-                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -165,7 +174,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Sql Migrations");
         }
 
-        private static void RunDocumentMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunDocumentMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
 
@@ -226,7 +235,7 @@ namespace Cake.DocumentDb.Operations
                         data[documentStatement.AccessKey] = results;
                     }
 
-                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -245,7 +254,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Document Migrations");
         }
 
-        private static void RunDataMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunDataMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
 
@@ -293,7 +302,7 @@ namespace Cake.DocumentDb.Operations
 
                     var data = task.DataProvider(context.Log, settings);
 
-                    operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
