@@ -192,7 +192,6 @@ namespace Cake.DocumentDb.Requests
 
         internal async Task PerformTask(IMigrationTask task, Action<JObject> mapAction)
         {
-            //Debugger.Launch();
             var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
                 task.DatabaseName,
                 task.CollectionName);
