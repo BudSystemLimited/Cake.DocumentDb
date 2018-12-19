@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Microsoft.Azure.Documents;
 using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Migration.Loqacious
@@ -11,6 +10,6 @@ namespace Cake.DocumentDb.Migration.Loqacious
         string DatabaseName { get; }
         string CollectionName { get; }
         string PartitionKey { get; }
-        Expression<Func<Document, bool>> Filter { get; }
+        Expression<Func<JObject, bool>> Filter { get; }
     }
 }

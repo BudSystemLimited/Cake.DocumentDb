@@ -197,27 +197,27 @@ namespace Cake.DocumentDb.Requests
                 task.DatabaseName,
                 task.CollectionName);
 
-            var queryable = client.CreateDocumentQuery(collectionResource.SelfLink,
-                new FeedOptions {EnableCrossPartitionQuery = true});
-
-            if (task.Filter != null)
-            {
-                queryable = queryable.Where(task.Filter);
-            }
+            var queryable = client.CreateDocumentQuery<JObject>(collectionResource.SelfLink,
+                new FeedOptions { EnableCrossPartitionQuery = true });
 
             var documentQuery = queryable.AsDocumentQuery();
+            var isMatch = task.Filter?.Compile() ?? (doc => true);
+
             while (documentQuery.HasMoreResults)
             {
                 var documents = await documentQuery.ExecuteNextAsync<JObject>();
 
                 foreach (var document in documents)
                 {
-                    mapAction(document);
+                    if (isMatch(document))
+                    {
+                        mapAction(document);
 
-                    UpsertDocument(
-                        task.DatabaseName,
-                        task.CollectionName,
-                        document);
+                        UpsertDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
                 }
             }
         }
