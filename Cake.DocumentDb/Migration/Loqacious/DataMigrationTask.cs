@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Cake.Core.Diagnostics;
 using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.Migration.Loqacious
 {
-    internal class DataMigrationTask
+    internal class DataMigrationTask : IMigrationTask
     {
         public string Description { get; }
         public string DatabaseName { get; }
         public string CollectionName { get; }
         public string PartitionKey { get; }
+        public Expression<Func<JObject, bool>> Filter => doc => true;
+
         public Action<ICakeLog, JObject, IDictionary<string, IList<JObject>>> Map { get; }
         public Func<ICakeLog, DocumentDbMigrationSettings, IDictionary<string, IList<JObject>>> DataProvider { get; }
 

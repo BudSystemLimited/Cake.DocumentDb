@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Cake.Core.Diagnostics;
 using Newtonsoft.Json.Linq;
 
@@ -13,7 +14,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
         private string partitionKey;
         private Action<ICakeLog, JObject, IDictionary<string, IList<JObject>>> map;
         private DocumentStatement[] documentStatements;
-        private Func<dynamic, bool> filter;
+        private Expression<Func<JObject, bool>> filter;
 
         public void Description(string setDescription)
         {
@@ -45,7 +46,7 @@ namespace Cake.DocumentDb.Migration.Loqacious
             documentStatements = setDocumentStatements;
         }
 
-        public void Filter(Func<dynamic, bool> setFilter)
+        public void Filter(Expression<Func<JObject, bool>> setFilter)
         {
             filter = setFilter;
         }

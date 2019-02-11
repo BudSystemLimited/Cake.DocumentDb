@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
@@ -17,15 +18,23 @@ namespace Cake.DocumentDb.Operations
 {
     public class Migrations
     {
-        public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        public static async Task Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            RunMigrations(context, assembly, settings);
-            RunSqlMigrations(context, assembly, settings);
-            RunDocumentMigrations(context, assembly, settings);
-            RunDataMigrations(context, assembly, settings);
+            try
+            {
+                await RunMigrations(context, assembly, settings);
+                await RunSqlMigrations(context, assembly, settings);
+                await RunDocumentMigrations(context, assembly, settings);
+                await RunDataMigrations(context, assembly, settings);
+            }
+            catch (Exception ex)
+            {
+                context.Log.Error(ex.Message, ex);
+                context.Log.Error(ex.StackTrace, ex);
+            }
         }
 
-        private static void RunMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Migrations");
 
@@ -67,31 +76,7 @@ namespace Cake.DocumentDb.Operations
                         continue;
                     }
 
-                    IList<JObject> documents;
-
-                    if (task.Filter == null)
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName);
-                    }
-                    else
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            task.Filter);
-                    }
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -110,7 +95,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Seeds");
         }
 
-        private static void RunSqlMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunSqlMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Sql Migrations");
 
@@ -170,31 +155,7 @@ namespace Cake.DocumentDb.Operations
                         }
                     }
 
-                    IList<JObject> documents;
-
-                    if (task.Filter == null)
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName);
-                    }
-                    else
-                    {
-                        documents = operation.GetDocuments(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            task.Filter);
-                    }
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -213,7 +174,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Sql Migrations");
         }
 
-        private static void RunDocumentMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunDocumentMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
 
@@ -266,38 +227,15 @@ namespace Cake.DocumentDb.Operations
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
                             $"Executing Document Query Using Source {documentStatement.DatabaseName} and Collection {documentStatement.CollectionName}");
 
-                        IList<JObject> results;
-
-                        if (documentStatement.Filter == null)
-                        {
-                            results = operation.GetDocuments(
-                                documentStatement.DatabaseName,
-                                documentStatement.CollectionName);
-                        }
-                        else
-                        {
-                            results = operation.GetDocuments(
+                        var results = operation.GetDocuments(
                                 documentStatement.DatabaseName,
                                 documentStatement.CollectionName,
                                 documentStatement.Filter);
-                        }
 
                         data[documentStatement.AccessKey] = results;
                     }
 
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {
@@ -316,7 +254,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Document Migrations");
         }
 
-        private static void RunDataMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunDataMigrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Migrations");
 
@@ -364,19 +302,7 @@ namespace Cake.DocumentDb.Operations
 
                     var data = task.DataProvider(context.Log, settings);
 
-                    var documents = operation.GetDocuments(
-                        task.DatabaseName,
-                        task.CollectionName);
-
-                    foreach (var document in documents)
-                    {
-                        task.Map(context.Log, document, data);
-
-                        operation.UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
+                    await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                     versionInfo.ProcessedMigrations.Add(new MigrationInfo
                     {

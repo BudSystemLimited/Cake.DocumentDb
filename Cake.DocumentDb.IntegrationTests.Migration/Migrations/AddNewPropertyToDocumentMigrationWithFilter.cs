@@ -1,5 +1,6 @@
 ﻿using System;
 using Cake.DocumentDb.Attributes;
+using Newtonsoft.Json.Linq;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
@@ -21,7 +22,7 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                     item["myNewBoolPropertyWithFilter"] = true;
                     item["myNewGuidPropertyWithFilter"] = Guid.NewGuid();
                 });
-                m.Filter(doc => doc["mypartitionKey"].ToString() == "1");
+                m.Filter(doc => doc["mypartitionKey"].ToString() == "1" );
             });
         }
     }
