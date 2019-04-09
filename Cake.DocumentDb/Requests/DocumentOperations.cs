@@ -206,18 +206,24 @@ namespace Cake.DocumentDb.Requests
             {
                 var documents = await documentQuery.ExecuteNextAsync<JObject>();
 
+                var upsertTasks = new List<Task>();
                 foreach (var document in documents)
                 {
                     if (isMatch(document))
                     {
                         mapAction(document);
 
-                        UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
+                        var upsertTask = client.UpsertDocumentAsync(
+                            UriFactory.CreateDocumentCollectionUri(task.DatabaseName, task.CollectionName),
+                            document,
+                            new RequestOptions(),
+                            true);
+
+                        upsertTasks.Add(upsertTask);
                     }
                 }
+
+                await Task.WhenAll(upsertTasks);
             }
         }
     }
