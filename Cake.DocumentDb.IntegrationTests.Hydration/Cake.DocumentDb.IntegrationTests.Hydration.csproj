@@ -62,6 +62,7 @@
     <Compile Include="Seeds\EmbeddedSeed.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Seeds\embeddedseed.json" />
   </ItemGroup>

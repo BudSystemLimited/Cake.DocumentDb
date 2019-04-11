@@ -26,9 +26,25 @@ namespace Cake.DocumentDb.Factories
                 {
                     ConnectionMode = ConnectionMode.Gateway,
                     ConnectionProtocol = Protocol.Https
-                }).AsReliable(new FixedInterval(
-                    15,
-                    TimeSpan.FromSeconds(200)));
+                })
+                .AsReliable(
+                    new FixedInterval(
+                        15,
+                        TimeSpan.FromSeconds(200)
+                    )
+                );
+        }
+
+        internal DocumentClient GetClientForBulkExecutor()
+        {
+            return new DocumentClient(
+                new Uri(settings.Endpoint),
+                settings.Key,
+                new ConnectionPolicy
+                {
+                    ConnectionMode = ConnectionMode.Direct,
+                    ConnectionProtocol = Protocol.Tcp
+                });
         }
     }
 }

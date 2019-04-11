@@ -90,6 +90,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Seeds\embeddedseedtwo.json" />
     <EmbeddedResource Include="Seeds\documentmigrationone.json" />

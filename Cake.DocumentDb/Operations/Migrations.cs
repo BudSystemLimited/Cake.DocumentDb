@@ -176,6 +176,7 @@ namespace Cake.DocumentDb.Operations
             }
 
             var operation = new DocumentOperations(settings.Connection, context);
+            var bulkOperation = new BulkDocumentOperations(settings.Connection, context);
 
             var orderedMigrations = migrations.OrderBy(m => m.Attribute.Timestamp);
             foreach (var migration in orderedMigrations)
@@ -216,7 +217,7 @@ namespace Cake.DocumentDb.Operations
                     data[documentStatement.AccessKey] = results;
                 }
 
-                await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                await bulkOperation.PerformTask(task, doc => task.Map(context.Log, doc, data));
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {

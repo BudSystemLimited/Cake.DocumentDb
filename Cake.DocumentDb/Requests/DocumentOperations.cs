@@ -8,6 +8,7 @@ using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Factories;
 using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Migration.Loqacious;
+using Microsoft.Azure.CosmosDB.BulkExecutor.BulkUpdate;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
