@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Cake.Core;
@@ -20,6 +19,7 @@ namespace Cake.DocumentDb.Requests
     {
         private readonly ICakeContext context;
         private readonly IReliableReadWriteDocumentClient client;
+        private readonly IDocumentClient clientOptimisedForWrite;
         private readonly CollectionOperations collectionOperations;
 
         public DocumentOperations(ConnectionSettings settings, ICakeContext context)
@@ -31,6 +31,7 @@ namespace Cake.DocumentDb.Requests
         public DocumentOperations(ClientFactory clientFactory, CollectionOperations collectionOperations)
         {
             this.client = clientFactory.GetClient();
+            this.clientOptimisedForWrite = clientFactory.GetClientOptimistedForWrite();
             this.collectionOperations = collectionOperations;
         }
 
@@ -196,28 +197,36 @@ namespace Cake.DocumentDb.Requests
                 task.DatabaseName,
                 task.CollectionName);
 
-            var queryable = client.CreateDocumentQuery<JObject>(collectionResource.SelfLink,
-                new FeedOptions { EnableCrossPartitionQuery = true });
+            var documentQuery = client
+                .CreateDocumentQuery<JObject>(
+                    collectionResource.SelfLink,
+                    new FeedOptions { EnableCrossPartitionQuery = true })
+                .AsDocumentQuery();
 
-            var documentQuery = queryable.AsDocumentQuery();
             var isMatch = task.Filter?.Compile() ?? (doc => true);
 
             while (documentQuery.HasMoreResults)
             {
                 var documents = await documentQuery.ExecuteNextAsync<JObject>();
 
+                var upsertTasks = new List<Task>();
                 foreach (var document in documents)
                 {
                     if (isMatch(document))
                     {
                         mapAction(document);
 
-                        UpsertDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
+                        var upsertTask = clientOptimisedForWrite.UpsertDocumentAsync(
+                            UriFactory.CreateDocumentCollectionUri(task.DatabaseName, task.CollectionName),
+                            document,
+                            new RequestOptions(),
+                            true);
+
+                        upsertTasks.Add(upsertTask);
                     }
                 }
+
+                await Task.WhenAll(upsertTasks);
             }
         }
     }
