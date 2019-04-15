@@ -191,6 +191,7 @@ namespace Cake.DocumentDb.Requests
             }
         }
 
+        // https://github.com/Azure/azure-cosmos-dotnet-v2/blob/master/samples/documentdb-benchmark/Program.cs
         internal async Task PerformTask(IMigrationTask task, Action<JObject> mapAction)
         {
             var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
@@ -205,11 +206,31 @@ namespace Cake.DocumentDb.Requests
 
             var isMatch = task.Filter?.Compile() ?? (doc => true);
 
+            var offer = (OfferV2)client.CreateOfferQuery()
+                .Where(o => o.ResourceLink == collectionResource.SelfLink)
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            var taskCount = 5;
+            if (offer == null)
+            {
+                context.Log.Write(Verbosity.Normal, LogLevel.Warning, $"Could not determine current throughput, taskCount defaulted to {taskCount}");
+            }
+            else
+            {
+                // set taskCount = 1 for each 100 RUs, minimum 1, maximum 250
+                var currentCollectionThroughput = offer.Content.OfferThroughput;
+                taskCount = Math.Max(currentCollectionThroughput / 100, 1);
+                taskCount = Math.Min(taskCount, 250);
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Current throughput is {currentCollectionThroughput}RUs, taskCount set to {taskCount}");
+            }
+
+            var upsertTasks = new TaskBuffer(taskCount);
             while (documentQuery.HasMoreResults)
             {
                 var documents = await documentQuery.ExecuteNextAsync<JObject>();
 
-                var upsertTasks = new List<Task>();
                 foreach (var document in documents)
                 {
                     if (isMatch(document))
@@ -223,11 +244,12 @@ namespace Cake.DocumentDb.Requests
                             true);
 
                         upsertTasks.Add(upsertTask);
+                        if (upsertTasks.IsFull())
+                            await upsertTasks.ExecuteInParallel();
                     }
                 }
-
-                await Task.WhenAll(upsertTasks);
             }
+            await upsertTasks.ExecuteInParallel();
         }
     }
 }
