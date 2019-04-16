@@ -35,7 +35,7 @@ namespace Cake.DocumentDb.Factories
         }
 
         // https://github.com/Azure/azure-cosmos-dotnet-v2/blob/master/samples/documentdb-benchmark/Program.cs
-        public IDocumentClient GetClientOptimistedForWrite()
+        public IDocumentClient GetClientOptimisedForWrite()
         {
             return new DocumentClient(
                 new Uri(settings.Endpoint),

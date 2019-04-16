@@ -31,7 +31,7 @@ namespace Cake.DocumentDb.Requests
         public DocumentOperations(ClientFactory clientFactory, CollectionOperations collectionOperations)
         {
             this.client = clientFactory.GetClient();
-            this.clientOptimisedForWrite = clientFactory.GetClientOptimistedForWrite();
+            this.clientOptimisedForWrite = clientFactory.GetClientOptimisedForWrite();
             this.collectionOperations = collectionOperations;
         }
 
