@@ -123,6 +123,7 @@
     <Compile Include="DocumentDbMigrationSettings.cs" />
     <Compile Include="SqlDatabaseConnectionSettings.cs" />
     <Compile Include="StorageConnectionSettings.cs" />
+    <Compile Include="WriteSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

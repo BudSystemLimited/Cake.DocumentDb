@@ -17,19 +17,29 @@ namespace Cake.DocumentDb.Requests
 {
     public class DocumentOperations
     {
+        private readonly WriteSettings writeSettings;
         private readonly ICakeContext context;
         private readonly IReliableReadWriteDocumentClient client;
         private readonly IDocumentClient clientOptimisedForWrite;
         private readonly CollectionOperations collectionOperations;
 
         public DocumentOperations(ConnectionSettings settings, ICakeContext context)
-            : this(new ClientFactory(settings, context), new CollectionOperations(settings, context))
+            : this(
+                settings.Write ?? WriteSettings.Default,
+                context,
+                new ClientFactory(settings, context),
+                new CollectionOperations(settings, context))
         {
-            this.context = context;
         }
 
-        public DocumentOperations(ClientFactory clientFactory, CollectionOperations collectionOperations)
+        public DocumentOperations(
+            WriteSettings writeSettings,
+            ICakeContext context,
+            ClientFactory clientFactory,
+            CollectionOperations collectionOperations)
         {
+            this.writeSettings = writeSettings;
+            this.context = context;
             this.client = clientFactory.GetClient();
             this.clientOptimisedForWrite = clientFactory.GetClientOptimisedForWrite();
             this.collectionOperations = collectionOperations;
@@ -218,10 +228,9 @@ namespace Cake.DocumentDb.Requests
             }
             else
             {
-                // set taskCount = 1 for each 100 RUs, minimum 1, maximum 250
                 var currentCollectionThroughput = offer.Content.OfferThroughput;
-                taskCount = Math.Max(currentCollectionThroughput / 100, 1);
-                taskCount = Math.Min(taskCount, 250);
+                taskCount = Math.Max((int)(currentCollectionThroughput * writeSettings.ThroughputFactor), writeSettings.MinTaskCount);
+                taskCount = Math.Min(taskCount, writeSettings.MaxTaskCount);
 
                 context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Current throughput is {currentCollectionThroughput}RUs, taskCount set to {taskCount}");
             }
