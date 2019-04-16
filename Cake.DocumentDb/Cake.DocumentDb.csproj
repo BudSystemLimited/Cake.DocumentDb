@@ -103,6 +103,7 @@
     <Compile Include="Migration\SqlStatement.cs" />
     <Compile Include="Operations\Deletions.cs" />
     <Compile Include="Operations\Hydrations.cs" />
+    <Compile Include="Requests\TaskBuffer.cs" />
     <Compile Include="Seed\EmbeddedDocumentSeed.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Database\ICreateDocumentDatabase.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="DocumentDbMigrationSettings.cs" />
     <Compile Include="SqlDatabaseConnectionSettings.cs" />
     <Compile Include="StorageConnectionSettings.cs" />
+    <Compile Include="WriteSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
