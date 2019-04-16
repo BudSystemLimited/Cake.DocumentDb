@@ -211,7 +211,7 @@ namespace Cake.DocumentDb.Requests
                 .AsEnumerable()
                 .FirstOrDefault();
 
-            var taskCount = 5;
+            var taskCount = 4;
             if (offer == null)
             {
                 context.Log.Write(Verbosity.Normal, LogLevel.Warning, $"Could not determine current throughput, taskCount defaulted to {taskCount}");
