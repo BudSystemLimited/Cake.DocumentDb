@@ -1,5 +1,5 @@
-﻿<?xml version="1.0"?>
-<package >
+<?xml version="1.0" encoding="utf-8"?>
+<package>
   <metadata>
     <id>Cake.DocumentDb</id>
     <version>7.3.0</version>
@@ -8,7 +8,7 @@
     <owners>Bud Systems Limited</owners>
     <licenseUrl>https://github.com/BudSystemLimited/Cake.DocumentDb/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/BudSystemLimited/Cake.DocumentDb</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/cake-contrib/graphics/a5cf0f881c390650144b2243ae551d5b9f836196/png/cake-contrib-medium.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/cake-contrib/graphics/png/cake-contrib-medium.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Cake plugin for creating documents, collections and seeding documents</description>
     <copyright>Copyright 2017</copyright>
