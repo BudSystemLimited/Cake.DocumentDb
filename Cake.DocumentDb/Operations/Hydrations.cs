@@ -41,81 +41,74 @@ namespace Cake.DocumentDb.Operations
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
-                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
-
-            foreach (var groupedHydration in groupedHydrations)
+            var orderedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp);
+            foreach (var hydration in orderedHydrations)
             {
-                var key = groupedHydration.Key.Split('.');
                 var versionInfo = operation.GetVersionInfo(
-                    key[0],
-                    key[1]);
+                    hydration.Task.DatabaseName,
+                    hydration.Task.CollectionName);
+                var task = hydration.Task;
 
-                foreach (var hydration in groupedHydration)
+                context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                    "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                    " On Database: " + task.DatabaseName);
+
+                if (versionInfo.ProcessedMigrations.Any(pm =>
+                    pm.Name == hydration.GetType().Name &&
+                    pm.Timestamp == hydration.Attribute.Timestamp))
                 {
-                    var task = hydration.Task;
-
                     context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                        "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                        " On Database: " + task.DatabaseName);
-
-                    if (versionInfo.ProcessedMigrations.Any(pm =>
-                        pm.Name == hydration.GetType().Name &&
-                        pm.Timestamp == hydration.Attribute.Timestamp))
-                    {
-                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                            "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
-                        continue;
-                    }
-
-                    var data = new Dictionary<string, IList<dynamic>>();
-
-                    if (task.AdditionalSqlStatements != null)
-                    {
-                        foreach (var sqlStatement in task.AdditionalSqlStatements)
-                        {
-                            context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                                $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
-                            using (
-                                var conn =
-                                    new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnections))
-                            )
-                            {
-                                conn.Open();
-                                data.Add(sqlStatement.StatementLookupKey ?? sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
-                            }
-                        }
-                    }
-
-                    using (var conn = new SqlConnection(GetConnection(task.SqlStatement.DataSource, settings.SqlConnections)))
-                    {
-                        conn.Open();
-
-                        var records = conn.Query<dynamic>(task.SqlStatement.Statement).ToList();
-
-                        foreach (var record in records)
-                        {
-                            var document = task.DocumentCreator(context.Log, record, data);
-
-                            operation.CreateDocument(
-                                task.DatabaseName,
-                                task.CollectionName,
-                                document);
-                        }
-                    }
-
-                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
-                    {
-                        Name = hydration.GetType().Name,
-                        Description = task.Description,
-                        Timestamp = hydration.Attribute.Timestamp,
-                        AppliedOn = DateTime.UtcNow
-                    });
+                        "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                    continue;
                 }
 
+                var data = new Dictionary<string, IList<dynamic>>();
+
+                if (task.AdditionalSqlStatements != null)
+                {
+                    foreach (var sqlStatement in task.AdditionalSqlStatements)
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            $"Executing Sql Using Source {sqlStatement.DataSource} and Statement {sqlStatement.Statement}");
+                        using (
+                            var conn =
+                                new SqlConnection(GetConnection(sqlStatement.DataSource, settings.SqlConnections))
+                        )
+                        {
+                            conn.Open();
+                            data.Add(sqlStatement.StatementLookupKey ?? sqlStatement.DataSource, conn.Query<dynamic>(sqlStatement.Statement).ToList());
+                        }
+                    }
+                }
+
+                using (var conn = new SqlConnection(GetConnection(task.SqlStatement.DataSource, settings.SqlConnections)))
+                {
+                    conn.Open();
+
+                    var records = conn.Query<dynamic>(task.SqlStatement.Statement).ToList();
+
+                    foreach (var record in records)
+                    {
+                        var document = task.DocumentCreator(context.Log, record, data);
+
+                        operation.CreateDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+                }
+
+                versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                {
+                    Name = hydration.GetType().Name,
+                    Description = task.Description,
+                    Timestamp = hydration.Attribute.Timestamp,
+                    AppliedOn = DateTime.UtcNow
+                });
+
                 operation.UpsertVersionInfo(
-                        key[0],
+                        hydration.Task.DatabaseName,
                         versionInfo);
             }
 
@@ -139,85 +132,79 @@ namespace Cake.DocumentDb.Operations
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
-                                              .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
-
-            foreach (var groupedHydration in groupedHydrations)
+            var orderedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp);
+            foreach (var hydration in orderedHydrations)
             {
-                var key = groupedHydration.Key.Split('.');
                 var versionInfo = operation.GetVersionInfo(
-                    key[0],
-                    key[1]);
+                    hydration.Task.DatabaseName,
+                    hydration.Task.CollectionName);
 
-                foreach (var hydration in groupedHydration)
+                var task = hydration.Task;
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                    "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                    " On Database: " + task.DatabaseName);
+
+                if (versionInfo.ProcessedMigrations.Any(pm =>
+                    pm.Name == hydration.GetType().Name &&
+                    pm.Timestamp == hydration.Attribute.Timestamp))
                 {
-                    var task = hydration.Task;
-
                     context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                        "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                        " On Database: " + task.DatabaseName);
-
-                    if (versionInfo.ProcessedMigrations.Any(pm =>
-                        pm.Name == hydration.GetType().Name &&
-                        pm.Timestamp == hydration.Attribute.Timestamp))
-                    {
-                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                            "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
-                        continue;
-                    }
-
-                    var data = new Dictionary<string, IList<JObject>>();
-
-                    if (task.AdditionalDocumentStatements != null)
-                    {
-                        foreach (var sqlStatement in task.AdditionalDocumentStatements)
-                        {
-                            context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                                $"Executing Sql Using Source {sqlStatement.DatabaseName} on Collection {sqlStatement.CollectionName}");
-
-                            data.Add(sqlStatement.AccessKey, operation.GetDocuments(
-                                sqlStatement.DatabaseName,
-                                sqlStatement.CollectionName,
-                                sqlStatement.Filter).ToList());
-                        }
-                    }
-
-                    var records = operation.GetDocuments(
-                        task.DocumentStatement.DatabaseName,
-                        task.DocumentStatement.CollectionName,
-                        task.DocumentStatement.Filter).ToList();
-
-                    foreach (var record in records)
-                    {
-                        var documents = new List<JObject>();
-
-                        if (task.DocumentCreator != null)
-                            documents.Add(task.DocumentCreator(context.Log, record, data));
-
-                        if (task.DocumentsCreator != null)
-                            documents.AddRange(task.DocumentsCreator(context.Log, record, data));
-
-                        foreach (var document in documents)
-                        {
-                            operation.CreateDocument(
-                                task.DatabaseName,
-                                task.CollectionName,
-                                document);
-                        }
-                    }
-
-                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
-                    {
-                        Name = hydration.GetType().Name,
-                        Description = task.Description,
-                        Timestamp = hydration.Attribute.Timestamp,
-                        AppliedOn = DateTime.UtcNow
-                    });
+                        "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                    continue;
                 }
 
+                var data = new Dictionary<string, IList<JObject>>();
+
+                if (task.AdditionalDocumentStatements != null)
+                {
+                    foreach (var sqlStatement in task.AdditionalDocumentStatements)
+                    {
+                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                            $"Executing Sql Using Source {sqlStatement.DatabaseName} on Collection {sqlStatement.CollectionName}");
+
+                        data.Add(sqlStatement.AccessKey, operation.GetDocuments(
+                            sqlStatement.DatabaseName,
+                            sqlStatement.CollectionName,
+                            sqlStatement.Filter).ToList());
+                    }
+                }
+
+                var records = operation.GetDocuments(
+                    task.DocumentStatement.DatabaseName,
+                    task.DocumentStatement.CollectionName,
+                    task.DocumentStatement.Filter).ToList();
+
+                foreach (var record in records)
+                {
+                    var documents = new List<JObject>();
+
+                    if (task.DocumentCreator != null)
+                        documents.Add(task.DocumentCreator(context.Log, record, data));
+
+                    if (task.DocumentsCreator != null)
+                        documents.AddRange(task.DocumentsCreator(context.Log, record, data));
+
+                    foreach (var document in documents)
+                    {
+                        operation.CreateDocument(
+                            task.DatabaseName,
+                            task.CollectionName,
+                            document);
+                    }
+                }
+
+                versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                {
+                    Name = hydration.GetType().Name,
+                    Description = task.Description,
+                    Timestamp = hydration.Attribute.Timestamp,
+                    AppliedOn = DateTime.UtcNow
+                });
+
                 operation.UpsertVersionInfo(
-                        key[0],
+                        hydration.Task.DatabaseName,
                         versionInfo);
             }
 
@@ -241,57 +228,52 @@ namespace Cake.DocumentDb.Operations
 
             var operation = new DocumentOperations(settings.Connection, context);
 
-            var groupedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp)
-                .GroupBy(m => m.Task.DatabaseName + "." + m.Task.CollectionName);
+            var orderedHydrations = hydrations.OrderBy(h => h.Attribute.Timestamp);
 
-            foreach (var groupedHydration in groupedHydrations)
+            foreach (var hydration in orderedHydrations)
             {
-                var key = groupedHydration.Key.Split('.');
                 var versionInfo = operation.GetVersionInfo(
-                    key[0],
-                    key[1]);
+                    hydration.Task.DatabaseName,
+                    hydration.Task.CollectionName);
 
-                foreach (var hydration in groupedHydration)
+                var task = hydration.Task;
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information,
+                    "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                    " On Database: " + task.DatabaseName);
+
+                if (versionInfo.ProcessedMigrations.Any(pm =>
+                    pm.Name == hydration.GetType().Name &&
+                    pm.Timestamp == hydration.Attribute.Timestamp))
                 {
-                    var task = hydration.Task;
-
                     context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                        "Running Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                        " On Database: " + task.DatabaseName);
-
-                    if (versionInfo.ProcessedMigrations.Any(pm =>
-                        pm.Name == hydration.GetType().Name &&
-                        pm.Timestamp == hydration.Attribute.Timestamp))
-                    {
-                        context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                            "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
-                            " On Database: " + task.DatabaseName + " Has Already Been Executed");
-                        continue;
-                    }
-
-                    var data = task.DataProvider(context.Log, settings);
-
-                    foreach (var record in data)
-                    {
-                        var document = task.DocumentCreator(context.Log, record);
-
-                        operation.CreateDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
-
-                    versionInfo.ProcessedMigrations.Add(new MigrationInfo
-                    {
-                        Name = hydration.GetType().Name,
-                        Description = task.Description,
-                        Timestamp = hydration.Attribute.Timestamp,
-                        AppliedOn = DateTime.UtcNow
-                    });
+                        "Hydration: " + task.Description + " On Collection: " + task.CollectionName +
+                        " On Database: " + task.DatabaseName + " Has Already Been Executed");
+                    continue;
                 }
 
+                var data = task.DataProvider(context.Log, settings);
+
+                foreach (var record in data)
+                {
+                    var document = task.DocumentCreator(context.Log, record);
+
+                    operation.CreateDocument(
+                        task.DatabaseName,
+                        task.CollectionName,
+                        document);
+                }
+
+                versionInfo.ProcessedMigrations.Add(new MigrationInfo
+                {
+                    Name = hydration.GetType().Name,
+                    Description = task.Description,
+                    Timestamp = hydration.Attribute.Timestamp,
+                    AppliedOn = DateTime.UtcNow
+                });
+
                 operation.UpsertVersionInfo(
-                    key[0],
+                    hydration.Task.DatabaseName,
                     versionInfo);
             }
 
