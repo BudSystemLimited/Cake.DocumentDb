@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
@@ -17,11 +18,19 @@ namespace Cake.DocumentDb.Operations
 {
     public class Hydrations
     {
-        public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        public static async Task Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            RunSqlHydrations(context, assembly, settings);
-            RunDocumentHydrations(context, assembly, settings);
-            RunDataHydrations(context, assembly, settings);
+            try
+            {
+                RunSqlHydrations(context, assembly, settings);
+                await RunDocumentHydrations(context, assembly, settings);
+                RunDataHydrations(context, assembly, settings);
+            }
+            catch (Exception ex)
+            {
+                context.Log.Error(ex.Message, ex);
+                context.Log.Error(ex.StackTrace, ex);
+            }
         }
 
         private static void RunSqlHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
@@ -115,7 +124,7 @@ namespace Cake.DocumentDb.Operations
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
         }
 
-        private static void RunDocumentHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        private static async Task RunDocumentHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
 
@@ -170,13 +179,8 @@ namespace Cake.DocumentDb.Operations
                             sqlStatement.Filter).ToList());
                     }
                 }
-
-                var records = operation.GetDocuments(
-                    task.DocumentStatement.DatabaseName,
-                    task.DocumentStatement.CollectionName,
-                    task.DocumentStatement.Filter).ToList();
-
-                foreach (var record in records)
+                
+                await operation.PerformHydrationTask(task, record =>
                 {
                     var documents = new List<JObject>();
 
@@ -186,14 +190,8 @@ namespace Cake.DocumentDb.Operations
                     if (task.DocumentsCreator != null)
                         documents.AddRange(task.DocumentsCreator(context.Log, record, data));
 
-                    foreach (var document in documents)
-                    {
-                        operation.CreateDocument(
-                            task.DatabaseName,
-                            task.CollectionName,
-                            document);
-                    }
-                }
+                    return documents;
+                });
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {

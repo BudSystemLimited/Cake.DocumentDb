@@ -22,12 +22,12 @@ namespace Cake.DocumentDb
             DatabaseCreations.Run(context, assembly, settings);
             CollectionCreations.Run(context, assembly, settings);
             Seeds.Run(context, assembly, settings);
-            Hydrations.Run(context, assembly, settings);
+            
+            var hydrationTask = Task.Run(async () => { await Hydrations.Run(context, assembly, settings); });
+            hydrationTask.Wait();
 
-            var task = Task.Run(async () => { await Migrations.Run(context, assembly, settings); });
-            task.Wait();
-
-            //Migrations.Run(context, assembly, settings);
+            var migrationTask = Task.Run(async () => { await Migrations.Run(context, assembly, settings); });
+            migrationTask.Wait();
 
             Deletions.Run(context, assembly, settings);
         }

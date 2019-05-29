@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Factories;
+using Cake.DocumentDb.Hydration.Loqacious;
 using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Migration.Loqacious;
 using Microsoft.Azure.Documents;
@@ -204,37 +205,12 @@ namespace Cake.DocumentDb.Requests
         // https://github.com/Azure/azure-cosmos-dotnet-v2/blob/master/samples/documentdb-benchmark/Program.cs
         internal async Task PerformMigrationTask(IMigrationTask task, Action<JObject> mapAction)
         {
-            var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
-                task.DatabaseName,
-                task.CollectionName);
-
-            var documentQuery = client
-                .CreateDocumentQuery<JObject>(
-                    collectionResource.SelfLink,
-                    new FeedOptions { EnableCrossPartitionQuery = true })
-                .AsDocumentQuery();
+            var collectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
+            var documentQuery = GetDocumentQuery(collectionResource);
+            var taskCount = GetParallelTaskCount(collectionResource);
 
             var isMatch = task.Filter?.Compile() ?? (doc => true);
-
-            var offer = (OfferV2)client.CreateOfferQuery()
-                .Where(o => o.ResourceLink == collectionResource.SelfLink)
-                .AsEnumerable()
-                .FirstOrDefault();
-
-            var taskCount = 4;
-            if (offer == null)
-            {
-                context.Log.Write(Verbosity.Normal, LogLevel.Warning, $"Could not determine current throughput, taskCount defaulted to {taskCount}");
-            }
-            else
-            {
-                var currentCollectionThroughput = offer.Content.OfferThroughput;
-                taskCount = Math.Max((int)(currentCollectionThroughput * writeSettings.ThroughputFactor), writeSettings.MinTaskCount);
-                taskCount = Math.Min(taskCount, writeSettings.MaxTaskCount);
-
-                context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Current throughput is {currentCollectionThroughput}RUs, taskCount set to {taskCount}");
-            }
-
+            
             var upsertTasks = new TaskBuffer(taskCount);
             while (documentQuery.HasMoreResults)
             {
@@ -259,6 +235,83 @@ namespace Cake.DocumentDb.Requests
                 }
             }
             await upsertTasks.ExecuteInParallel();
+        }
+        internal async Task PerformHydrationTask(DocumentHydrationTask task, Func<JObject, IEnumerable<JObject>> documentsToCreateFunc)
+        {
+            var collectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
+            var documentQuery = GetDocumentQuery(collectionResource);
+            var taskCount = GetParallelTaskCount(collectionResource);
+
+            var isMatch = task.DocumentStatement.Filter ?? (doc => true);
+
+            var createTasks = new TaskBuffer(taskCount);
+            while (documentQuery.HasMoreResults)
+            {
+                var documents = await documentQuery.ExecuteNextAsync<JObject>();
+
+                foreach (var document in documents)
+                {
+                    if (isMatch(document))
+                    {
+                        var documentsToCreate = documentsToCreateFunc(document);
+
+                        foreach (var docToCreate in documentsToCreate)
+                        {
+                            var createTask = clientOptimisedForWrite.CreateDocumentAsync(
+                                UriFactory.CreateDocumentCollectionUri(task.DatabaseName, task.CollectionName),
+                                docToCreate,
+                                new RequestOptions(),
+                                true);
+
+                            createTasks.Add(createTask);
+
+                            if (createTasks.IsFull())
+                                await createTasks.ExecuteInParallel();
+                        }
+                    }
+                }
+            }
+            await createTasks.ExecuteInParallel();
+        }
+
+        private DocumentCollection GetCollectionResource(string db, string collection)
+        {
+            return collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
+                db,
+                collection);
+        }
+
+        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource)
+        {
+            return client
+                .CreateDocumentQuery<JObject>(
+                    collectionResource.SelfLink,
+                    new FeedOptions { EnableCrossPartitionQuery = true })
+                .AsDocumentQuery();
+        }
+
+        private int GetParallelTaskCount(DocumentCollection collectionResource)
+        {
+            var offer = (OfferV2)client.CreateOfferQuery()
+                .Where(o => o.ResourceLink == collectionResource.SelfLink)
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            var taskCount = 4;
+            if (offer == null)
+            {
+                context.Log.Write(Verbosity.Normal, LogLevel.Warning, $"Could not determine current throughput, taskCount defaulted to {taskCount}");
+            }
+            else
+            {
+                var currentCollectionThroughput = offer.Content.OfferThroughput;
+                taskCount = Math.Max((int)(currentCollectionThroughput * writeSettings.ThroughputFactor), writeSettings.MinTaskCount);
+                taskCount = Math.Min(taskCount, writeSettings.MaxTaskCount);
+
+                context.Log.Write(Verbosity.Normal, LogLevel.Information, $"Current throughput is {currentCollectionThroughput}RUs, taskCount set to {taskCount}");
+            }
+
+            return taskCount;
         }
     }
 }
