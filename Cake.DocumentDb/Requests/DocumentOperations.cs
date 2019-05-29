@@ -202,7 +202,7 @@ namespace Cake.DocumentDb.Requests
         }
 
         // https://github.com/Azure/azure-cosmos-dotnet-v2/blob/master/samples/documentdb-benchmark/Program.cs
-        internal async Task PerformTask(IMigrationTask task, Action<JObject> mapAction)
+        internal async Task PerformMigrationTask(IMigrationTask task, Action<JObject> mapAction)
         {
             var collectionResource = collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
                 task.DatabaseName,

@@ -69,7 +69,7 @@ namespace Cake.DocumentDb.Operations
                     continue;
                 }
 
-                await operation.PerformTask(task, doc => task.Map(context.Log, doc));
+                await operation.PerformMigrationTask(task, doc => task.Map(context.Log, doc));
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
@@ -142,7 +142,7 @@ namespace Cake.DocumentDb.Operations
                     }
                 }
 
-                await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                await operation.PerformMigrationTask(task, doc => task.Map(context.Log, doc, data));
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
@@ -216,7 +216,7 @@ namespace Cake.DocumentDb.Operations
                     data[documentStatement.AccessKey] = results;
                 }
 
-                await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                await operation.PerformMigrationTask(task, doc => task.Map(context.Log, doc, data));
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
@@ -277,7 +277,7 @@ namespace Cake.DocumentDb.Operations
 
                 var data = task.DataProvider(context.Log, settings);
 
-                await operation.PerformTask(task, doc => task.Map(context.Log, doc, data));
+                await operation.PerformMigrationTask(task, doc => task.Map(context.Log, doc, data));
 
                 versionInfo.ProcessedMigrations.Add(new MigrationInfo
                 {
