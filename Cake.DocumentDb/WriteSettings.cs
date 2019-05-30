@@ -8,9 +8,9 @@
 
         public static WriteSettings Default = new WriteSettings
         {
-            ThroughputFactor = 0.01,
+            ThroughputFactor = 0.005,
             MinTaskCount = 1,
-            MaxTaskCount = 250
+            MaxTaskCount = 150
         };
     }
 }
