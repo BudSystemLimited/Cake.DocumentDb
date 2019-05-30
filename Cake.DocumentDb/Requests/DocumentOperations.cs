@@ -10,7 +10,6 @@ using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Migration.Loqacious;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Client.TransientFaultHandling;
 using Microsoft.Azure.Documents.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -20,7 +19,7 @@ namespace Cake.DocumentDb.Requests
     {
         private readonly WriteSettings writeSettings;
         private readonly ICakeContext context;
-        private readonly IReliableReadWriteDocumentClient client;
+        private readonly IDocumentClient client;
         private readonly IDocumentClient clientOptimisedForWrite;
         private readonly CollectionOperations collectionOperations;
 
