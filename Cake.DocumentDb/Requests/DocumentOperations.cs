@@ -237,13 +237,16 @@ namespace Cake.DocumentDb.Requests
         }
         internal async Task PerformHydrationTask(DocumentHydrationTask task, Func<JObject, IEnumerable<JObject>> documentsToCreateFunc)
         {
-            var collectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
-            var documentQuery = GetDocumentQuery(collectionResource);
-            var taskCount = GetParallelTaskCount(collectionResource);
+            var sourceCollectionResource = GetCollectionResource(task.DocumentStatement.DatabaseName, task.DocumentStatement.CollectionName);
+            var documentQuery = GetDocumentQuery(sourceCollectionResource);
+
+            var destCollectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
+            var taskCount = GetParallelTaskCount(destCollectionResource);
 
             var isMatch = task.DocumentStatement.Filter ?? (doc => true);
 
             var createTasks = new TaskBuffer(taskCount);
+
             while (documentQuery.HasMoreResults)
             {
                 var documents = await documentQuery.ExecuteNextAsync<JObject>();
@@ -257,7 +260,7 @@ namespace Cake.DocumentDb.Requests
                         foreach (var docToCreate in documentsToCreate)
                         {
                             var createTask = clientOptimisedForWrite.CreateDocumentAsync(
-                                UriFactory.CreateDocumentCollectionUri(task.DatabaseName, task.CollectionName),
+                                destCollectionResource.SelfLink,
                                 docToCreate,
                                 new RequestOptions(),
                                 true);

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Cake.DocumentDb</id>
-    <version>7.4.0</version>
+    <version>7.4.1</version>
     <title>$title$</title>
     <authors>jonathan.stowell</authors>
     <owners>Bud Systems Limited</owners>
