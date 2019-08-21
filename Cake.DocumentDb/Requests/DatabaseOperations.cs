@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using Cake.Core;
 using Cake.DocumentDb.Factories;
-using Microsoft.Azure.Documents.Client.TransientFaultHandling;
+using Microsoft.Azure.Documents;
 
 namespace Cake.DocumentDb.Requests
 {
     public class DatabaseOperations
     {
-        private readonly IReliableReadWriteDocumentClient client;
+        private readonly IDocumentClient client;
 
         public DatabaseOperations(ConnectionSettings settings, ICakeContext context)
             :this(new ClientFactory(settings, context))

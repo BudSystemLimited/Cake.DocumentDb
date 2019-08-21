@@ -2,8 +2,8 @@
 #r .\Cake.DocumentDb\bin\Debug\Cake.DocumentDb.dll
 #r .\tools\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll
 #r .\tools\Microsoft.Azure.DocumentDB\lib\net45\Microsoft.Azure.Documents.Client.dll
-#r .\tools\EnterpriseLibrary.TransientFaultHandling\lib\portable-net45+win+wp8\Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.dll
-#r .\tools\Microsoft.Azure.DocumentDB.TransientFaultHandling\lib\net45\Microsoft.Azure.Documents.Client.TransientFaultHandling.dll
+
+
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS

@@ -3,13 +3,12 @@ using Cake.Core;
 using Cake.DocumentDb.Factories;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Client.TransientFaultHandling;
 
 namespace Cake.DocumentDb.Requests
 {
     public class CollectionOperations
     {
-        private readonly IReliableReadWriteDocumentClient client;
+        private readonly IDocumentClient client;
         private readonly DatabaseOperations databaseOperations;
 
         public CollectionOperations(ConnectionSettings settings, ICakeContext context)

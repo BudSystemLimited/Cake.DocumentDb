@@ -2,8 +2,6 @@
 using Cake.Core;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Client.TransientFaultHandling;
-using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
 namespace Cake.DocumentDb.Factories
 {
@@ -18,7 +16,7 @@ namespace Cake.DocumentDb.Factories
             this.context = context;
         }
 
-        public IReliableReadWriteDocumentClient GetClient()
+        public IDocumentClient GetClient()
         {
             return new DocumentClient(
                 new Uri(settings.Endpoint),
@@ -26,12 +24,15 @@ namespace Cake.DocumentDb.Factories
                 new ConnectionPolicy
                 {
                     ConnectionMode = ConnectionMode.Gateway,
-                    ConnectionProtocol = Protocol.Https
-                })
-                .AsReliable(
-                    new FixedInterval(
-                        15,
-                        TimeSpan.FromSeconds(200)));
+                    ConnectionProtocol = Protocol.Https,
+                    RequestTimeout = new TimeSpan(1, 0, 0),
+                    MaxConnectionLimit = 1000,
+                    RetryOptions = new RetryOptions
+                    {
+                        MaxRetryAttemptsOnThrottledRequests = 10,
+                        MaxRetryWaitTimeInSeconds = 60
+                    }
+                });
         }
 
         // https://github.com/Azure/azure-cosmos-dotnet-v2/blob/master/samples/documentdb-benchmark/Program.cs
