@@ -28,8 +28,8 @@ namespace Cake.DocumentDb.Operations
             }
             catch (Exception ex)
             {
-                context.Log.Error(ex.Message, ex);
-                context.Log.Error(ex.StackTrace, ex);
+                context.Log.Error(ex.Message);
+                context.Log.Error(ex.StackTrace);
             }
         }
 
