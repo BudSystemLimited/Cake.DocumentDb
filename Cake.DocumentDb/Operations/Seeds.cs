@@ -1,5 +1,7 @@
-﻿using Cake.Core;
+﻿using System;
+using Cake.Core;
 using Cake.Core.Diagnostics;
+using Cake.DocumentDb.Extensions;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
 using Cake.DocumentDb.Seed;
@@ -9,6 +11,18 @@ namespace Cake.DocumentDb.Operations
     public class Seeds
     {
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        {
+            try
+            {
+                RunSeeds(context, assembly, settings);
+            }
+            catch (Exception exception)
+            {
+                context.LogExceptionHierarchyAsErrors(exception);
+            }
+        }
+
+        public static void RunSeeds(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Seeds");
 

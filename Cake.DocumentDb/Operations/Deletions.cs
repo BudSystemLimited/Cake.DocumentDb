@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
+using Cake.DocumentDb.Extensions;
 using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
@@ -14,6 +14,18 @@ namespace Cake.DocumentDb.Operations
     public class Deletions
     {
         public static void Run(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
+        {
+            try
+            {
+                RunDeletions(context, assembly, settings);
+            }
+            catch (Exception exception)
+            {
+                context.LogExceptionHierarchyAsErrors(exception);
+            }
+        }
+
+        public static void RunDeletions(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
             context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Deletions");
 
