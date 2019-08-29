@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Cake.Core;
 using Cake.Core.Diagnostics;
 using Cake.DocumentDb.Attributes;
+using Cake.DocumentDb.Extensions;
 using Cake.DocumentDb.Migration;
 using Cake.DocumentDb.Providers;
 using Cake.DocumentDb.Requests;
@@ -26,10 +27,9 @@ namespace Cake.DocumentDb.Operations
                 await RunDocumentMigrations(context, assembly, settings);
                 await RunDataMigrations(context, assembly, settings);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                context.Log.Error(ex.Message);
-                context.Log.Error(ex.StackTrace);
+                context.LogExceptionHierarchyAsErrors(exception);
             }
         }
 

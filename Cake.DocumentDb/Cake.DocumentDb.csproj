@@ -69,6 +69,7 @@
     <Compile Include="Deletion\Loqacious\DeletionTask.cs" />
     <Compile Include="Deletion\DeleteDocuments.cs" />
     <Compile Include="DocumentDatabaseAlias.cs" />
+    <Compile Include="Extensions\CakeContextExtensions.cs" />
     <Compile Include="Hydration\DataHydration.cs" />
     <Compile Include="Hydration\Loqacious\DataHydrationConfigurationCreator.cs" />
     <Compile Include="Hydration\Loqacious\DataHydrationTask.cs" />
