@@ -190,7 +190,6 @@ namespace Cake.DocumentDb.Operations
                     "Running Migration: " + task.Description + " On Collection: " + task.CollectionName +
                     " On Database: " + task.DatabaseName);
 
-
                 if (versionInfo.ProcessedMigrations.Any(pm =>
                     pm.Name == migration.GetType().Name &&
                     pm.Timestamp == migration.Attribute.Timestamp))
@@ -211,6 +210,7 @@ namespace Cake.DocumentDb.Operations
                     var results = operation.GetDocuments(
                             documentStatement.DatabaseName,
                             documentStatement.CollectionName,
+                            documentStatement.Query,
                             documentStatement.Filter);
 
                     data[documentStatement.AccessKey] = results;

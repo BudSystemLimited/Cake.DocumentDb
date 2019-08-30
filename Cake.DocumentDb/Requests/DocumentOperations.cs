@@ -84,6 +84,7 @@ namespace Cake.DocumentDb.Requests
         public IList<JObject> GetDocuments(
             string database,
             string collection,
+            SqlQuerySpec querySpec = null,
             Func<JObject, bool> filter = null,
             string partitionKeyPath = null,
             int? throughput = null)
@@ -94,6 +95,19 @@ namespace Cake.DocumentDb.Requests
                 partitionKeyPath,
                 throughput);
 
+            if (querySpec != null)
+            {
+                return client
+                    .CreateDocumentQuery<JObject>(
+                        collectionResource.SelfLink,
+                        querySpec,
+                        new FeedOptions
+                        {
+                            EnableCrossPartitionQuery = true
+                        })
+                    .AsEnumerable()
+                    .ToList();
+            }
             if (filter != null)
             {
                 return client
@@ -214,7 +228,7 @@ namespace Cake.DocumentDb.Requests
         internal async Task PerformMigrationTask(IMigrationTask task, Action<JObject> mapAction)
         {
             var collectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
-            var documentQuery = GetDocumentQuery(collectionResource);
+            var documentQuery = GetDocumentQuery(collectionResource, null);
             var taskCount = GetParallelTaskCount(collectionResource);
 
             var isMatch = task.Filter?.Compile() ?? (doc => true);
@@ -244,10 +258,11 @@ namespace Cake.DocumentDb.Requests
             }
             await upsertTasks.ExecuteInParallel();
         }
+
         internal async Task PerformHydrationTask(DocumentHydrationTask task, Func<JObject, IEnumerable<JObject>> documentsToCreateFunc)
         {
             var sourceCollectionResource = GetCollectionResource(task.DocumentStatement.DatabaseName, task.DocumentStatement.CollectionName);
-            var documentQuery = GetDocumentQuery(sourceCollectionResource);
+            var documentQuery = GetDocumentQuery(sourceCollectionResource, task.DocumentStatement.Query);
 
             var destCollectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
             var taskCount = GetParallelTaskCount(destCollectionResource);
@@ -285,20 +300,24 @@ namespace Cake.DocumentDb.Requests
             await createTasks.ExecuteInParallel();
         }
 
-        private DocumentCollection GetCollectionResource(string db, string collection)
+        private DocumentCollection GetCollectionResource(string database, string collection)
         {
             return collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
-                db,
+                database,
                 collection);
         }
 
-        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource)
+        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource, SqlQuerySpec querySpec)
         {
-            return client
-                .CreateDocumentQuery<JObject>(
-                    collectionResource.SelfLink,
-                    new FeedOptions { EnableCrossPartitionQuery = true })
-                .AsDocumentQuery();
+            var feedOptions = new FeedOptions
+            {
+                EnableCrossPartitionQuery = true
+            };
+            var query = querySpec == null
+                ? client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, feedOptions)
+                : client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, querySpec, feedOptions);
+
+            return query.AsDocumentQuery();
         }
 
         private int GetParallelTaskCount(DocumentCollection collectionResource)

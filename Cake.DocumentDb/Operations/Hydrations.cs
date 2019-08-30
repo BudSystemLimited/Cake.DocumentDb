@@ -168,18 +168,21 @@ namespace Cake.DocumentDb.Operations
 
                 if (task.AdditionalDocumentStatements != null)
                 {
-                    foreach (var sqlStatement in task.AdditionalDocumentStatements)
+                    foreach (var additionalDocumentStatement in task.AdditionalDocumentStatements)
                     {
                         context.Log.Write(Verbosity.Normal, LogLevel.Information,
-                            $"Executing Sql Using Source {sqlStatement.DatabaseName} on Collection {sqlStatement.CollectionName}");
+                            $"Executing Sql Using Source {additionalDocumentStatement.DatabaseName} on Collection {additionalDocumentStatement.CollectionName}");
 
-                        data.Add(sqlStatement.AccessKey, operation.GetDocuments(
-                            sqlStatement.DatabaseName,
-                            sqlStatement.CollectionName,
-                            sqlStatement.Filter).ToList());
+                        var results = operation.GetDocuments(
+                            additionalDocumentStatement.DatabaseName,
+                            additionalDocumentStatement.CollectionName,
+                            additionalDocumentStatement.Query,
+                            additionalDocumentStatement.Filter);
+
+                        data[additionalDocumentStatement.AccessKey] = results;
                     }
                 }
-                
+
                 await operation.PerformHydrationTask(task, record =>
                 {
                     var documents = new List<JObject>();
