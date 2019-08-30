@@ -5,20 +5,31 @@ using Cake.DocumentDb.Migration;
 
 namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
 {
-    [Migration(201707241100)]
-    public class AddPropertyPopulatedFromDocumentDatabaseMigration : DocumentMigration
+    [Migration(201908301502)]
+    public class AddPropertyPopulatedFromDocumentDatabaseMigrationWithQuery : DocumentMigration
     {
-        public AddPropertyPopulatedFromDocumentDatabaseMigration()
+        public AddPropertyPopulatedFromDocumentDatabaseMigrationWithQuery()
         {
             Migrate(m =>
             {
-                m.Description("Add property populated from another document collection");
+                m.Description("Add property populated from another document collection with query");
                 m.DatabaseName("cakeddbmigrationtest");
                 m.CollectionName("DocumentMigrationOne");
                 m.PartitionKey("/mypartitionKey");
                 m.DocumentStatements(new[]
                 {
-                    new DocumentStatement { AccessKey = "DocumentMigrationTwo", DatabaseName = "cakeddbmigrationtest", CollectionName = "DocumentMigrationTwo" }
+                    new DocumentStatement
+                    {
+                        AccessKey = "DocumentMigrationTwo",
+                        DatabaseName = "cakeddbmigrationtest",
+                        CollectionName = "DocumentMigrationTwo",
+                        Query = new QuerySpec(
+                            "select c.id, c.mobile from c where c.id = @id",
+                            new
+                            {
+                                id = "1"
+                            })
+                    }
                 });
                 m.Map((log, item, data) =>
                 {
@@ -32,8 +43,7 @@ namespace Cake.DocumentDb.IntegrationTests.Migration.Migrations
                     log.Write(Verbosity.Normal, LogLevel.Information, $"Found record with id: {item["id"].ToString()}");
 
                     item["mobile"] = record["mobile"];
-                    item["address"] = record["address"];
-                    item["prop1"] = "AddPropertyPopulatedFromDocumentDatabaseMigration";
+                    item["prop2"] = "AddPropertyPopulatedFromDocumentDatabaseMigrationWithQuery";
                 });
             });
         }

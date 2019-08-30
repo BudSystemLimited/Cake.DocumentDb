@@ -54,16 +54,20 @@
     <Compile Include="CreateTestMigrationDestinationCollection.cs" />
     <Compile Include="CreateTestMigrationSourceCollection.cs" />
     <Compile Include="Hydrations\PopulateFromArbitraryData.cs" />
+    <Compile Include="Hydrations\PopulateFromDocumentDbWithQuery.cs" />
+    <Compile Include="Hydrations\PopulateFromDocumentDbWithQueryAndAdditionalDocumentStatements.cs" />
     <Compile Include="Hydrations\PopulateMultipleFromDocumentDb.cs" />
     <Compile Include="Hydrations\PopulateFromDocumentDb.cs" />
     <Compile Include="Hydrations\PopulateFromSqlWithMultipleDatabases.cs" />
     <Compile Include="Hydrations\PopulateFromSql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Seeds\EmbeddedSeed.cs" />
+    <Compile Include="Seeds\MigrationSource2.cs" />
+    <Compile Include="Seeds\MigrationSource1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <EmbeddedResource Include="Seeds\embeddedseed.json" />
+    <EmbeddedResource Include="Seeds\MigrationSource1.json" />
+    <EmbeddedResource Include="Seeds\MigrationSource2.json" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

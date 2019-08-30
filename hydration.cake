@@ -1,4 +1,4 @@
-#addin "nuget:?package=Cake.SqlServer&version=1.6.1"
+#addin "nuget:?package=Cake.SqlServer&version=1.9.0"
 #r .\tools\Dapper\lib\net45\Dapper.dll
 #r .\Cake.DocumentDb\bin\Debug\Cake.DocumentDb.dll
 #r .\tools\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll
@@ -46,9 +46,24 @@ Task("Create-Database")
         CreateDatabaseIfNotExists("Server=.;User Id=sa;Password=ChorusAlan", "cake-documentdb-two");
     });
 
+Task("Copy-Dependencies")
+    .Does(() =>
+    {
+        var path = ".\\tools\\Microsoft.Azure.DocumentDB\\runtimes\\win7-x64\\native";
+        if (DirectoryExists(path))
+        {
+            Information("Copying dependencies");
+            CopyFiles(path + "\\*.dll", ".\\");
+        }
+        else
+        {
+            Error("Could not find dependencies to copy");
+        }
+    });
 
 Task("Default")
     .IsDependentOn("Execute-Sql")
+    .IsDependentOn("Copy-Dependencies")
     .Does(() =>
     {
         var hydrations = GetFiles("./Cake.DocumentDb.IntegrationTests.Hydration/bin/Debug/Cake.DocumentDb.IntegrationTests.Hydration.dll");

@@ -19,7 +19,7 @@ namespace Cake.DocumentDb.IntegrationTests.Hydration.Hydrations
                 m.DocumentStatement(new DocumentStatement { DatabaseName = "cakeddbhydrationtest", CollectionName = "MigrationSource" });
                 m.DocumentCreator((log, item, data) => JObject.FromObject(new
                 {
-                    id = item["id"],
+                    id = $"A{item["id"].ToString()}",
                     mypartitionKey = item["mypartitionKey"],
                     firstname = item["firstname"]
                 }));
