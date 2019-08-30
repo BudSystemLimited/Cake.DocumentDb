@@ -92,6 +92,7 @@
     <Compile Include="Migration\Loqacious\MigrationConfigurationCreator.cs" />
     <Compile Include="Migration\Loqacious\MigrationTask.cs" />
     <Compile Include="Migration\DocumentMigration.cs" />
+    <Compile Include="Migration\QuerySpec.cs" />
     <Compile Include="Migration\SqlMigration.cs" />
     <Compile Include="Migration\SqlStatement.cs" />
     <Compile Include="Operations\Deletions.cs" />

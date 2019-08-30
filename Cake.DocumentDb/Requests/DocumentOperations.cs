@@ -84,7 +84,7 @@ namespace Cake.DocumentDb.Requests
         public IList<JObject> GetDocuments(
             string database,
             string collection,
-            SqlQuerySpec querySpec = null,
+            QuerySpec querySpec = null,
             Func<JObject, bool> filter = null,
             string partitionKeyPath = null,
             int? throughput = null)
@@ -100,7 +100,7 @@ namespace Cake.DocumentDb.Requests
                 return client
                     .CreateDocumentQuery<JObject>(
                         collectionResource.SelfLink,
-                        querySpec,
+                        querySpec.SqlQuerySpec,
                         new FeedOptions
                         {
                             EnableCrossPartitionQuery = true
@@ -307,7 +307,7 @@ namespace Cake.DocumentDb.Requests
                 collection);
         }
 
-        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource, SqlQuerySpec querySpec)
+        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource, QuerySpec querySpec)
         {
             var feedOptions = new FeedOptions
             {
@@ -315,7 +315,7 @@ namespace Cake.DocumentDb.Requests
             };
             var query = querySpec == null
                 ? client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, feedOptions)
-                : client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, querySpec, feedOptions);
+                : client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, querySpec.SqlQuerySpec, feedOptions);
 
             return query.AsDocumentQuery();
         }

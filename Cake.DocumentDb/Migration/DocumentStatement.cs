@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Azure.Documents;
 
 namespace Cake.DocumentDb.Migration
 {
@@ -11,7 +10,7 @@ namespace Cake.DocumentDb.Migration
         /// <summary>
         /// Allows custom Cosmos query definition, including selecting a subset of fields. Use either <see cref="Query"/>, <see cref="Filter"/> or neither.
         /// </summary>
-        public SqlQuerySpec Query { get; set; }
+        public QuerySpec Query { get; set; }
         /// <summary>
         /// Allows filtering of the documents returned from Cosmos. Use either <see cref="Query"/>, <see cref="Filter"/> or neither.
         /// </summary>
