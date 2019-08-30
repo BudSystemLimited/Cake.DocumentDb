@@ -35,7 +35,7 @@ namespace Cake.DocumentDb.Operations
 
         private static void RunSqlHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Sql Hydrations");
 
             var hydrations = InstanceProvider.GetInstances<SqlHydration>(assembly, settings.Profile);
             foreach (var hydration in hydrations)
@@ -121,12 +121,12 @@ namespace Cake.DocumentDb.Operations
                         versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Sql Hydrations");
         }
 
         private static async Task RunDocumentHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Document Hydrations");
 
             var hydrations = InstanceProvider.GetInstances<DocumentHydration>(assembly, settings.Profile);
             foreach (var hydration in hydrations)
@@ -209,12 +209,12 @@ namespace Cake.DocumentDb.Operations
                         versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Document Hydrations");
         }
 
         private static void RunDataHydrations(ICakeContext context, string assembly, DocumentDbMigrationSettings settings)
         {
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Running Data Hydrations");
 
             var hydrations = InstanceProvider.GetInstances<DataHydration>(assembly, settings.Profile);
             foreach (var hydration in hydrations)
@@ -278,7 +278,7 @@ namespace Cake.DocumentDb.Operations
                     versionInfo);
             }
 
-            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Hydrations");
+            context.Log.Write(Verbosity.Normal, LogLevel.Information, "Finished Running Data Hydrations");
         }
 
         private static string GetConnection(string source, IEnumerable<SqlDatabaseConnectionSettings> settings)
