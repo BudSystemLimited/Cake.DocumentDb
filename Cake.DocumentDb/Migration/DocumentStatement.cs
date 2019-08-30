@@ -14,6 +14,7 @@ namespace Cake.DocumentDb.Migration
         /// <summary>
         /// Allows filtering of the documents returned from Cosmos. Use either <see cref="Query"/>, <see cref="Filter"/> or neither.
         /// </summary>
+        [Obsolete]
         public Func<dynamic, bool> Filter { get; set; }
     }
 }
