@@ -57,12 +57,13 @@ namespace Cake.DocumentDb.Requests
                 partitionKeyPath,
                 throughput);
 
-            var requestOptions = new RequestOptions();
-
-            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
-                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
-
-            var versionInfo = client.CreateDocumentQuery<VersionInfo>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            var versionInfo = client
+                .CreateDocumentQuery<VersionInfo>(
+                    collectionResource.SelfLink,
+                    new FeedOptions
+                    {
+                        EnableCrossPartitionQuery = true
+                    })
                 .Where(d => d.Id == collection)
                 .AsEnumerable()
                 .FirstOrDefault();
@@ -93,20 +94,26 @@ namespace Cake.DocumentDb.Requests
                 partitionKeyPath,
                 throughput);
 
-            var requestOptions = new RequestOptions();
-
-            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
-                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
-
             if (filter != null)
             {
-                return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
-                    .Where(filter)
+                return client
+                    .CreateDocumentQuery<JObject>(
+                        collectionResource.SelfLink,
+                        new FeedOptions
+                        {
+                            EnableCrossPartitionQuery = true
+                        })
+                    .Where(filter) // This where clause is not being performed in Cosmos!
                     .AsEnumerable()
                     .ToList();
             }
-
-            return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            return client
+                .CreateDocumentQuery<JObject>(
+                    collectionResource.SelfLink,
+                    new FeedOptions
+                    {
+                        EnableCrossPartitionQuery = true
+                    })
                 .AsEnumerable()
                 .ToList();
         }
@@ -129,11 +136,13 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.UpsertDocumentAsync(
+            return client
+                .UpsertDocumentAsync(
                     collectionResource.SelfLink,
                     document,
                     requestOptions,
-                    true).Result;
+                    true)
+                .Result;
         }
 
         public Document UpsertDocument(
@@ -154,13 +163,13 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            var result = client.UpsertDocumentAsync(
-                collectionResource.SelfLink,
-                document,
-                requestOptions,
-                true).Result;
-
-            return result;
+            return client
+                .UpsertDocumentAsync(
+                    collectionResource.SelfLink,
+                    document,
+                    requestOptions,
+                    true)
+                .Result;
         }
 
         public void DeleteDocuments(
