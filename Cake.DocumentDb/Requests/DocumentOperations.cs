@@ -57,12 +57,13 @@ namespace Cake.DocumentDb.Requests
                 partitionKeyPath,
                 throughput);
 
-            var requestOptions = new RequestOptions();
-
-            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
-                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
-
-            var versionInfo = client.CreateDocumentQuery<VersionInfo>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            var versionInfo = client
+                .CreateDocumentQuery<VersionInfo>(
+                    collectionResource.SelfLink,
+                    new FeedOptions
+                    {
+                        EnableCrossPartitionQuery = true
+                    })
                 .Where(d => d.Id == collection)
                 .AsEnumerable()
                 .FirstOrDefault();
@@ -83,6 +84,7 @@ namespace Cake.DocumentDb.Requests
         public IList<JObject> GetDocuments(
             string database,
             string collection,
+            QuerySpec querySpec = null,
             Func<JObject, bool> filter = null,
             string partitionKeyPath = null,
             int? throughput = null)
@@ -93,20 +95,39 @@ namespace Cake.DocumentDb.Requests
                 partitionKeyPath,
                 throughput);
 
-            var requestOptions = new RequestOptions();
-
-            if (!string.IsNullOrWhiteSpace(partitionKeyPath))
-                requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
-
-            if (filter != null)
+            if (querySpec != null)
             {
-                return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
-                    .Where(filter)
+                return client
+                    .CreateDocumentQuery<JObject>(
+                        collectionResource.SelfLink,
+                        querySpec.SqlQuerySpec,
+                        new FeedOptions
+                        {
+                            EnableCrossPartitionQuery = true
+                        })
                     .AsEnumerable()
                     .ToList();
             }
-
-            return client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, new FeedOptions { EnableCrossPartitionQuery = true })
+            if (filter != null)
+            {
+                return client
+                    .CreateDocumentQuery<JObject>(
+                        collectionResource.SelfLink,
+                        new FeedOptions
+                        {
+                            EnableCrossPartitionQuery = true
+                        })
+                    .Where(filter) // This where clause is not being performed in Cosmos!
+                    .AsEnumerable()
+                    .ToList();
+            }
+            return client
+                .CreateDocumentQuery<JObject>(
+                    collectionResource.SelfLink,
+                    new FeedOptions
+                    {
+                        EnableCrossPartitionQuery = true
+                    })
                 .AsEnumerable()
                 .ToList();
         }
@@ -129,11 +150,13 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            return client.UpsertDocumentAsync(
+            return client
+                .UpsertDocumentAsync(
                     collectionResource.SelfLink,
                     document,
                     requestOptions,
-                    true).Result;
+                    true)
+                .Result;
         }
 
         public Document UpsertDocument(
@@ -154,13 +177,13 @@ namespace Cake.DocumentDb.Requests
             if (!string.IsNullOrWhiteSpace(partitionKeyPath))
                 requestOptions.PartitionKey = new PartitionKey(partitionKeyPath);
 
-            var result = client.UpsertDocumentAsync(
-                collectionResource.SelfLink,
-                document,
-                requestOptions,
-                true).Result;
-
-            return result;
+            return client
+                .UpsertDocumentAsync(
+                    collectionResource.SelfLink,
+                    document,
+                    requestOptions,
+                    true)
+                .Result;
         }
 
         public void DeleteDocuments(
@@ -205,7 +228,7 @@ namespace Cake.DocumentDb.Requests
         internal async Task PerformMigrationTask(IMigrationTask task, Action<JObject> mapAction)
         {
             var collectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
-            var documentQuery = GetDocumentQuery(collectionResource);
+            var documentQuery = GetDocumentQuery(collectionResource, null);
             var taskCount = GetParallelTaskCount(collectionResource);
 
             var isMatch = task.Filter?.Compile() ?? (doc => true);
@@ -235,10 +258,11 @@ namespace Cake.DocumentDb.Requests
             }
             await upsertTasks.ExecuteInParallel();
         }
+
         internal async Task PerformHydrationTask(DocumentHydrationTask task, Func<JObject, IEnumerable<JObject>> documentsToCreateFunc)
         {
             var sourceCollectionResource = GetCollectionResource(task.DocumentStatement.DatabaseName, task.DocumentStatement.CollectionName);
-            var documentQuery = GetDocumentQuery(sourceCollectionResource);
+            var documentQuery = GetDocumentQuery(sourceCollectionResource, task.DocumentStatement.Query);
 
             var destCollectionResource = GetCollectionResource(task.DatabaseName, task.CollectionName);
             var taskCount = GetParallelTaskCount(destCollectionResource);
@@ -276,20 +300,24 @@ namespace Cake.DocumentDb.Requests
             await createTasks.ExecuteInParallel();
         }
 
-        private DocumentCollection GetCollectionResource(string db, string collection)
+        private DocumentCollection GetCollectionResource(string database, string collection)
         {
             return collectionOperations.GetOrCreateDocumentCollectionIfNotExists(
-                db,
+                database,
                 collection);
         }
 
-        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource)
+        private IDocumentQuery<JObject> GetDocumentQuery(DocumentCollection collectionResource, QuerySpec querySpec)
         {
-            return client
-                .CreateDocumentQuery<JObject>(
-                    collectionResource.SelfLink,
-                    new FeedOptions { EnableCrossPartitionQuery = true })
-                .AsDocumentQuery();
+            var feedOptions = new FeedOptions
+            {
+                EnableCrossPartitionQuery = true
+            };
+            var query = querySpec == null
+                ? client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, feedOptions)
+                : client.CreateDocumentQuery<JObject>(collectionResource.SelfLink, querySpec.SqlQuerySpec, feedOptions);
+
+            return query.AsDocumentQuery();
         }
 
         private int GetParallelTaskCount(DocumentCollection collectionResource)

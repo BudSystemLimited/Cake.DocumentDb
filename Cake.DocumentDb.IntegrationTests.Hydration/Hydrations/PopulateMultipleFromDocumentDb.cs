@@ -24,7 +24,7 @@ namespace Cake.DocumentDb.IntegrationTests.Hydration.Hydrations
                         .Select(i => JObject
                             .FromObject(new
                             {
-                                id = $"M{item["id"].Value<int>() + i}",
+                                id = $"B{item["id"].ToString()}.{i}",
                                 mypartitionKey = item["mypartitionKey"],
                                 firstname = item["firstname"]
                             }))

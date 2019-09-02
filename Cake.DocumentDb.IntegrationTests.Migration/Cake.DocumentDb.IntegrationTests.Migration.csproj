@@ -56,24 +56,26 @@
     <Compile Include="CreateTestCollection.cs" />
     <Compile Include="CreateTestDatabase.cs" />
     <Compile Include="CreateTestTwoCollection.cs" />
-    <Compile Include="Migrations\AddNewPropertyToGrandChildCollectionItemMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToCollectionItemMigration.cs" />
+    <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithLocalProfile.cs" />
-    <Compile Include="Migrations\AddNewPropertyToDocumentMigration.cs" />
     <Compile Include="Migrations\AddNewPropertyToDocumentMigrationWithRandomProfile.cs" />
+    <Compile Include="Migrations\AddNewPropertyToGrandChildCollectionItemMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromDataProviderMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigration.cs" />
-    <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithFilter.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromDocumentDatabaseMigrationWithQuery.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigration.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationToMyCollectionTwo.cs" />
+    <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithFilter.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithLocalProfile.cs" />
     <Compile Include="Migrations\AddPropertyPopulatedFromSqlDatabaseMigrationWithRandomProfileWillNotMigrate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Seeds\CollectionMigrationAddPropertyToGrandChildSeed.cs" />
     <Compile Include="Seeds\CollectionMigrationPropertyAdditionSeed.cs" />
     <Compile Include="Seeds\DataMigrationSeed.cs" />
-    <Compile Include="Seeds\DocumentMigrationTwoSeed.cs" />
+    <Compile Include="Seeds\DocumentMigrationTwoSeed2.cs" />
+    <Compile Include="Seeds\DocumentMigrationTwoSeed1.cs" />
     <Compile Include="Seeds\MyCollectionTwoEmbeddedSeed.cs" />
     <Compile Include="Seeds\EmbeddedSeed.cs" />
     <Compile Include="Seeds\DocumentMigrationOneSeed.cs" />
@@ -93,10 +95,11 @@
     <None Include="packages.config" />
     <EmbeddedResource Include="Seeds\embeddedseedtwo.json" />
     <EmbeddedResource Include="Seeds\documentmigrationone.json" />
-    <EmbeddedResource Include="Seeds\documentmigrationtwo.json" />
+    <EmbeddedResource Include="Seeds\documentmigrationtwo1.json" />
     <EmbeddedResource Include="Seeds\collectionmigrationpropertyaddition.json" />
     <EmbeddedResource Include="Seeds\collectionmigrationaddpropertytograndchild.json" />
     <EmbeddedResource Include="Seeds\datamigration.json" />
+    <EmbeddedResource Include="Seeds\documentmigrationtwo2.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

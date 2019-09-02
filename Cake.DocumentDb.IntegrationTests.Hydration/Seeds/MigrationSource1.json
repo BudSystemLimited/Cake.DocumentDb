@@ -1,0 +1,6 @@
+﻿{
+  "id":  "1",
+  "mypartitionKey": "1",
+  "firstname": "foo",
+  "surname":  "bar"
+}
